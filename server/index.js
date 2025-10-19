@@ -6,11 +6,14 @@ const mongooseConnection = require('./config/mongooseConnection')
 const projectRouter = require('./routes/projectRouter')
 const adminRouter = require('./routes/adminRouter')
 const isLoggedIn = require('./middlewares/isLoggedIn')
-
+const trackVisit = require('./middlewares/trackVisit')
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(cookieParser())
+
+// Add visit tracking middleware
+app.use(trackVisit)
 
 app.get('/', (req, res) => {
     res.send("Hello")

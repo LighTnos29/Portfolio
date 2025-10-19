@@ -31,15 +31,6 @@ module.exports.createProject = async (req, res) => {
     }
 }
 
-module.exports.githubFetch = async (req, res) => {
-    try {
-        const response = await axios.get('https://api.github.com/users/LighTnos29/repos')
-        return res.send(response.data)
-    } catch (error) {
-        res.send("there is an error")
-    }
-}
-
 module.exports.githubPrivateRepoFetch = async (req, res) => {
     try {
         const response = await axios.get('https://api.github.com/user/repos', {
@@ -58,8 +49,8 @@ module.exports.githubPrivateRepoFetch = async (req, res) => {
 module.exports.createProjectFromRepo = async (req, res) => {
     try {
         const { repoName } = req.body;
-        const owner = "LighTnos29"; // Fixed owner
-        
+        const owner = "LighTnos29";
+
         if (!repoName) {
             return res.status(400).json({
                 success: false,
@@ -67,7 +58,6 @@ module.exports.createProjectFromRepo = async (req, res) => {
             });
         }
 
-        // Fetch repository details
         const repoResponse = await axios.get(`https://api.github.com/repos/${owner}/${repoName}`, {
             headers: {
                 'Authorization': `Bearer ${process.env.GITHUB_ACCESS_TOKEN}`,
@@ -76,7 +66,6 @@ module.exports.createProjectFromRepo = async (req, res) => {
 
         const repoData = repoResponse.data;
 
-        // Fetch README file
         let readmeContent = '';
         try {
             const readmeResponse = await axios.get(`https://api.github.com/repos/${owner}/${repoName}/readme`, {
@@ -86,14 +75,12 @@ module.exports.createProjectFromRepo = async (req, res) => {
                 }
             });
             readmeContent = readmeResponse.data;
-            console.log(readmeContent);
-            
+
         } catch (readmeError) {
             console.log('No README found or error fetching README');
             readmeContent = 'No README available';
         }
 
-        // Fetch languages used in the repository
         const languagesResponse = await axios.get(`https://api.github.com/repos/${owner}/${repoName}/languages`, {
             headers: {
                 'Authorization': `Bearer ${process.env.GITHUB_ACCESS_TOKEN}`,
@@ -102,11 +89,9 @@ module.exports.createProjectFromRepo = async (req, res) => {
 
         const languages = Object.keys(languagesResponse.data);
 
-        // Initialize Gemini AI
         const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
         const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
-        // Create prompt for Gemini AI
         const prompt = `
         Analyze this GitHub repository and create a structured project description:
 
@@ -138,25 +123,20 @@ module.exports.createProjectFromRepo = async (req, res) => {
         const response = await result.response;
         let aiResponse = response.text();
 
-        // Clean up AI response - remove markdown formatting and extra text
-        // Remove markdown code blocks if present
         aiResponse = aiResponse.replace(/```json\s*/g, '').replace(/```\s*/g, '');
-        
-        // Try to extract JSON from the response
+
         const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
         if (jsonMatch) {
             aiResponse = jsonMatch[0];
         }
 
-        // Parse AI response
         let projectData;
         try {
             projectData = JSON.parse(aiResponse);
         } catch (parseError) {
             console.error('Error parsing AI response:', parseError);
             console.error('AI Response:', aiResponse);
-            
-            // Fallback: Create a basic project structure
+
             projectData = {
                 title: repoData.name || 'Unknown Project',
                 domain: languages.length > 0 ? 'Software Development' : 'General',
@@ -165,7 +145,6 @@ module.exports.createProjectFromRepo = async (req, res) => {
             };
         }
 
-        // Create project in database
         const project = await projectModel.create({
             title: projectData.title,
             domain: projectData.domain,
