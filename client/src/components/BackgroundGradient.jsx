@@ -7,23 +7,39 @@ const BackgroundGradient = () => {
   const ball3Ref = useRef(null);
 
   useEffect(() => {
-    // Ball 1 - Blue ball large circular motion across screen (slower)
+    // Get responsive animation ranges based on screen size
+    const getAnimationRange = () => {
+      const screenWidth = window.innerWidth;
+      if (screenWidth < 640) { // Mobile
+        return { x: 150, y: 100 };
+      } else if (screenWidth < 768) { // Tablet
+        return { x: 250, y: 150 };
+      } else if (screenWidth < 1024) { // Small desktop
+        return { x: 400, y: 250 };
+      } else { // Large desktop
+        return { x: 600, y: 400 };
+      }
+    };
+
+    const range = getAnimationRange();
+
+    // Ball 1 - Blue ball responsive circular motion
     const tl1 = gsap.timeline({ repeat: -1 });
     tl1.to(ball1Ref.current, {
-      x: 600,
+      x: range.x,
       y: 0,
       duration: 8,
       ease: "power1.inOut"
     })
     .to(ball1Ref.current, {
-      x: 600,
-      y: 400,
+      x: range.x,
+      y: range.y,
       duration: 8,
       ease: "power1.inOut"
     })
     .to(ball1Ref.current, {
       x: 0,
-      y: 400,
+      y: range.y,
       duration: 8,
       ease: "power1.inOut"
     })
@@ -34,11 +50,11 @@ const BackgroundGradient = () => {
       ease: "power1.inOut"
     });
 
-    // Ball 2 - Purple ball figure-8 motion across screen (slower)
+    // Ball 2 - Purple ball responsive figure-8 motion
     const tl2 = gsap.timeline({ repeat: -1, delay: 4 });
     tl2.to(ball2Ref.current, {
-      x: -400,
-      y: -200,
+      x: -range.x * 0.67,
+      y: -range.y * 0.5,
       duration: 6,
       ease: "power2.inOut"
     })
@@ -49,8 +65,8 @@ const BackgroundGradient = () => {
       ease: "power2.inOut"
     })
     .to(ball2Ref.current, {
-      x: 400,
-      y: 200,
+      x: range.x * 0.67,
+      y: range.y * 0.5,
       duration: 6,
       ease: "power2.inOut"
     })
@@ -61,29 +77,29 @@ const BackgroundGradient = () => {
       ease: "power2.inOut"
     });
 
-    // Ball 3 - Teal ball wide orbital motion (slower)
+    // Ball 3 - Teal ball responsive orbital motion
     const tl3 = gsap.timeline({ repeat: -1, delay: 8 });
     tl3.to(ball3Ref.current, {
-      x: 300,
-      y: -300,
+      x: range.x * 0.5,
+      y: -range.y * 0.75,
       duration: 10,
       ease: "power1.inOut"
     })
     .to(ball3Ref.current, {
-      x: -300,
-      y: -300,
+      x: -range.x * 0.5,
+      y: -range.y * 0.75,
       duration: 10,
       ease: "power1.inOut"
     })
     .to(ball3Ref.current, {
-      x: -300,
-      y: 300,
+      x: -range.x * 0.5,
+      y: range.y * 0.75,
       duration: 10,
       ease: "power1.inOut"
     })
     .to(ball3Ref.current, {
-      x: 300,
-      y: 300,
+      x: range.x * 0.5,
+      y: range.y * 0.75,
       duration: 10,
       ease: "power1.inOut"
     });
@@ -115,10 +131,10 @@ const BackgroundGradient = () => {
       {/* Ball 1 - Lighter Blue gradient */}
       <div 
         ref={ball1Ref}
-        className="fixed w-[600px] h-[600px] rounded-full opacity-25 pointer-events-none"
+        className="fixed w-[300px] h-[300px] sm:w-[400px] sm:h-[400px] md:w-[500px] md:h-[500px] lg:w-[600px] lg:h-[600px] rounded-full opacity-25 pointer-events-none"
         style={{ 
           backgroundColor: '#93C5FD', 
-          filter: 'blur(150px)',
+          filter: 'blur(80px)',
           left: '5%',
           top: '10%',
           zIndex: 1
@@ -128,10 +144,10 @@ const BackgroundGradient = () => {
       {/* Ball 2 - Purple gradient */}
       <div 
         ref={ball2Ref}
-        className="fixed w-[550px] h-[550px] rounded-full opacity-20 pointer-events-none"
+        className="fixed w-[250px] h-[250px] sm:w-[350px] sm:h-[350px] md:w-[450px] md:h-[450px] lg:w-[550px] lg:h-[550px] rounded-full opacity-20 pointer-events-none"
         style={{ 
           backgroundColor: '#8B5CF6', 
-          filter: 'blur(140px)',
+          filter: 'blur(70px)',
           right: '5%',
           top: '15%',
           zIndex: 1
@@ -141,10 +157,10 @@ const BackgroundGradient = () => {
       {/* Ball 3 - Teal gradient */}
       <div 
         ref={ball3Ref}
-        className="fixed w-[500px] h-[500px] rounded-full opacity-18 pointer-events-none"
+        className="fixed w-[200px] h-[200px] sm:w-[300px] sm:h-[300px] md:w-[400px] md:h-[400px] lg:w-[500px] lg:h-[500px] rounded-full opacity-18 pointer-events-none"
         style={{ 
           backgroundColor: '#06B6D4', 
-          filter: 'blur(130px)',
+          filter: 'blur(60px)',
           left: '45%',
           bottom: '10%',
           zIndex: 1
