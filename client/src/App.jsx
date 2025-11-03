@@ -1,10 +1,10 @@
 
-import './App.css'
+import Hero from './components/hero.jsx'
 
 function App() {
   return (
     <>
-      <p className='text-xl font-[poppins]'>Hello! Client side basic setup.</p>
+      <Hero />
     </>
   )
 }

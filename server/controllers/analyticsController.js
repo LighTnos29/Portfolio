@@ -6,7 +6,6 @@ const crypto = require('crypto');
 const hashIP = (ip) => {
     return crypto.createHash('sha256').update(ip + process.env.JWT_SECRET).digest('hex').slice(0, 16);
 };
-
 // Get comprehensive analytics data
 module.exports.getAnalytics = async (req, res) => {
     try {
@@ -133,7 +132,6 @@ module.exports.getAnalytics = async (req, res) => {
         });
     }
 };
-
 // Track project view
 module.exports.trackProjectView = async (req, res) => {
     try {

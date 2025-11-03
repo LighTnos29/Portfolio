@@ -12,13 +12,12 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(cookieParser())
 
-// Add visit tracking middleware
-app.use(trackVisit)
-
 app.get('/', (req, res) => {
     res.send("Hello")
 })
-app.use("/project", isLoggedIn ,projectRouter)
+
+// Protected routes with visit tracking
+app.use("/project", isLoggedIn, trackVisit, projectRouter)
 app.use("/admin", adminRouter)
 
 
