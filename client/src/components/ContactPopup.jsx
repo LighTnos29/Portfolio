@@ -1,5 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { gsap } from 'gsap'
+import emailjs from '@emailjs/browser'
+
+const EMAILJS_SERVICE = 'service_8cctnhu'
+const EMAILJS_TEMPLATE_NOTIFY = 'template_768n46f'  // notification → you
+const EMAILJS_TEMPLATE_REPLY = 'template_aeoi6tr'  // auto-reply  → sender
+const EMAILJS_PUBLIC_KEY = 'PmxjXETZdjK-nqiM_'
 
 const ContactPopup = ({ isOpen, onClose }) => {
     const overlayRef = useRef(null)
@@ -41,8 +47,36 @@ const ContactPopup = ({ isOpen, onClose }) => {
     const handleSubmit = async (e) => {
         e.preventDefault()
         setStatus('sending')
-        await new Promise((r) => setTimeout(r, 1400))
-        setStatus('sent')
+
+        const templateParams = {
+            name: form.name,
+            email: form.email,
+            to_email: form.email,  // explicit recipient for auto-reply
+            to_name: form.name,
+            message: form.message,
+            year: new Date().getFullYear(),
+        }
+
+        try {
+            // 1️⃣ Notify you
+            await emailjs.send(
+                EMAILJS_SERVICE,
+                EMAILJS_TEMPLATE_NOTIFY,
+                templateParams,
+                EMAILJS_PUBLIC_KEY
+            )
+            // 2️⃣ Auto-reply to sender
+            await emailjs.send(
+                EMAILJS_SERVICE,
+                EMAILJS_TEMPLATE_REPLY,
+                templateParams,
+                EMAILJS_PUBLIC_KEY
+            )
+            setStatus('sent')
+        } catch (err) {
+            console.error('EmailJS error:', err)
+            setStatus('error')
+        }
     }
 
     if (!isOpen) return null
@@ -148,7 +182,7 @@ const ContactPopup = ({ isOpen, onClose }) => {
                         {!isMobile && (
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                                 {[
-                                    { icon: '✉', label: 'uditagrawal@email.com' },
+                                    { icon: '✉', label: 'udit.2012005@gmail.com' },
                                     { icon: '⚡', label: 'Available for freelance' },
                                 ].map(({ icon, label }) => (
                                     <div key={label} style={{
@@ -169,7 +203,35 @@ const ContactPopup = ({ isOpen, onClose }) => {
 
                     {/* ── RIGHT: form ── */}
                     <div style={{ padding: isMobile ? '20px 24px 28px' : '48px 44px 48px 40px' }}>
-                        {status === 'sent' ? (
+                        {status === 'error' ? (
+
+                            /* error */
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, minHeight: isMobile ? 'auto' : '100%', textAlign: 'center', padding: '24px 0' }}>
+                                <div style={{
+                                    width: 52, height: 52, borderRadius: '50%',
+                                    background: 'rgba(192,57,43,0.12)', border: '1px solid rgba(192,57,43,0.3)',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                }}>
+                                    <svg width="22" height="22" fill="none" stroke="rgba(220,80,60,0.9)" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </div>
+                                <p style={{ color: '#fff', fontWeight: 500, fontSize: 17, letterSpacing: '-0.02em' }}>Something went wrong</p>
+                                <p style={{ color: 'rgba(255,255,255,0.38)', fontSize: 13, fontWeight: 300 }}>
+                                    Please try again or email me directly at<br />
+                                    <span style={{ color: 'rgba(255,255,255,0.6)' }}>udit.2012005@gmail.com</span>
+                                </p>
+                                <button onClick={() => setStatus('idle')} style={{
+                                    marginTop: 4, padding: '9px 24px', borderRadius: 999,
+                                    background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.18)',
+                                    color: 'rgba(255,255,255,0.7)', fontSize: 13, fontWeight: 500,
+                                    cursor: 'pointer', letterSpacing: '-0.01em', transition: 'all 0.2s',
+                                }}>
+                                    Try again
+                                </button>
+                            </div>
+
+                        ) : status === 'sent' ? (
 
                             /* success */
                             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, minHeight: isMobile ? 'auto' : '100%', textAlign: 'center', padding: '24px 0' }}>
