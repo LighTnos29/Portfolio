@@ -148,45 +148,24 @@ const BackgroundGradient = () => {
       }
     });
 
-    // Smooth opacity pulsing for better mixing effect
-    gsap.to(ball1Ref.current, {
-      opacity: 0.35,
-      duration: 8,
-      repeat: -1,
-      yoyo: true,
-      ease: "sine.inOut"
-    });
+    // Smooth opacity pulsing — min opacity kept above 0 so balls never disappear
+    gsap.fromTo(ball1Ref.current,
+      { opacity: 0.18 },
+      { opacity: 0.32, duration: 8, repeat: -1, yoyo: true, ease: "sine.inOut" }
+    );
 
-    gsap.to(ball2Ref.current, {
-      opacity: 0.28,
-      duration: 7,
-      repeat: -1,
-      yoyo: true,
-      ease: "sine.inOut",
-      delay: 2
-    });
+    gsap.fromTo(ball2Ref.current,
+      { opacity: 0.14 },
+      { opacity: 0.26, duration: 7, repeat: -1, yoyo: true, ease: "sine.inOut", delay: 2 }
+    );
 
-    gsap.to(ball3Ref.current, {
-      opacity: 0.25,
-      duration: 9,
-      repeat: -1,
-      yoyo: true,
-      ease: "sine.inOut",
-      delay: 4
-    });
+    gsap.fromTo(ball3Ref.current,
+      { opacity: 0.12 },
+      { opacity: 0.24, duration: 9, repeat: -1, yoyo: true, ease: "sine.inOut", delay: 4 }
+    );
 
-    // Handle window resize for responsive animations
-    const handleResize = () => {
-      const newRange = getAnimationRange();
-      // Restart animations with new ranges if needed
-      gsap.set([ball1Ref.current, ball2Ref.current, ball3Ref.current], { clearProps: "all" });
-    };
-
-    window.addEventListener('resize', handleResize);
-    
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
+    // Resize: do nothing — balls are fixed and CSS handles sizing via breakpoints
+    return () => {};
 
   }, []);
 
