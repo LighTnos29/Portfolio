@@ -3,8 +3,15 @@ import { gsap } from 'gsap';
 
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const mobileMenuRef = useRef(null);
   const mobileMenuContentRef = useRef(null);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   const toggleMobileMenu = () => {
     if (!isMobileMenuOpen) {
@@ -48,8 +55,15 @@ const Navbar = () => {
   }, [isMobileMenuOpen]);
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 px-4 sm:px-6 py-3 sm:py-4">
-      <div className="flex items-center justify-between max-w-7xl mx-auto">
+    <nav className="fixed top-0 left-0 right-0 z-50 px-4 sm:px-6 pt-3 sm:pt-4 pb-0">
+      <div className={`flex items-center justify-between max-w-7xl mx-auto
+        px-4 sm:px-6 py-2.5 sm:py-3
+        rounded-2xl
+        transition-all duration-300
+        ${scrolled
+          ? 'bg-black/40 backdrop-blur-xl border border-white/10 shadow-[0_4px_32px_rgba(0,0,0,0.4)]'
+          : 'bg-transparent border border-transparent'
+        }`}>
         {/* Logo */}
         <div className="flex items-center">
           <div
