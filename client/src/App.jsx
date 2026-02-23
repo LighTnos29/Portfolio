@@ -1,22 +1,18 @@
 
 import Hero from './components/hero.jsx'
-import WhiteNoise from './components/WhiteNoise.jsx'
 import BackgroundGradient from './components/BackgroundGradient.jsx'
 import Navbar from './components/Navbar.jsx'
 
 function App() {
   return (
-    <div className="relative min-h-screen">
-      {/* Global gradient balls background for all components */}
+    <div className="relative min-h-screen" style={{ backgroundColor: '#000000' }}>
+
       <BackgroundGradient />
-      
-      {/* Navigation bar */}
+
       <Navbar />
+       <Hero />
       
-      {/* Global white noise overlay for all components */}
-      <WhiteNoise opacity={0.02} zIndex={9999} />
-      
-      <Hero />
+     
     </div>
   )
 }
