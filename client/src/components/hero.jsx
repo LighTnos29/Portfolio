@@ -132,10 +132,10 @@ const Hero = () => {
           className="flex flex-wrap items-center justify-center gap-2 sm:gap-4 mb-6 sm:mb-10"
         >
           {/* Full Stack badge with glow */}
-          <div className="relative inline-flex items-center justify-center">
+          <div className="relative inline-flex items-center justify-center" style={{ isolation: 'isolate' }}>
             <div
               ref={spotlightRef}
-              className="absolute -inset-[3px] rounded-full bg-[#72A9CF] blur-md"
+              className="absolute inset-0 rounded-full bg-[#72A9CF]/60 blur-sm"
             />
             <button
               className="relative inline-flex items-center justify-center
