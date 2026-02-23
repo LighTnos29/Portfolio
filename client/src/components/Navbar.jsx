@@ -76,10 +76,10 @@ const Navbar = () => {
 
         {/* Desktop Navigation Links */}
         <div className="hidden md:flex items-center space-x-6 lg:space-x-8">
-          <a href="#home"       className="transition-colors duration-300 text-sm lg:text-base xl:text-lg font-medium hover:text-white" style={{ color: '#D1DAE0', fontFamily: 'Poppins, sans-serif' }}>Home</a>
-          <a href="#about"      className="transition-colors duration-300 text-sm lg:text-base xl:text-lg font-medium hover:text-white" style={{ color: '#D1DAE0', fontFamily: 'Poppins, sans-serif' }}>About</a>
-          <a href="#skills"     className="transition-colors duration-300 text-sm lg:text-base xl:text-lg font-medium hover:text-white" style={{ color: '#D1DAE0', fontFamily: 'Poppins, sans-serif' }}>Skills</a>
-          <a href="#projects"   className="transition-colors duration-300 text-sm lg:text-base xl:text-lg font-medium hover:text-white" style={{ color: '#D1DAE0', fontFamily: 'Poppins, sans-serif' }}>Projects</a>
+          <a href="#home" className="transition-colors duration-300 text-sm lg:text-base xl:text-lg font-medium hover:text-white" style={{ color: '#D1DAE0', fontFamily: 'Poppins, sans-serif' }}>Home</a>
+          <a href="#about" className="transition-colors duration-300 text-sm lg:text-base xl:text-lg font-medium hover:text-white" style={{ color: '#D1DAE0', fontFamily: 'Poppins, sans-serif' }}>About</a>
+          <a href="#skills" className="transition-colors duration-300 text-sm lg:text-base xl:text-lg font-medium hover:text-white" style={{ color: '#D1DAE0', fontFamily: 'Poppins, sans-serif' }}>Skills</a>
+          <a href="#projects" className="transition-colors duration-300 text-sm lg:text-base xl:text-lg font-medium hover:text-white" style={{ color: '#D1DAE0', fontFamily: 'Poppins, sans-serif' }}>Projects</a>
           <a href="#experience" className="transition-colors duration-300 text-sm lg:text-base xl:text-lg font-medium hover:text-white" style={{ color: '#D1DAE0', fontFamily: 'Poppins, sans-serif' }}>Experience</a>
 
           {/* Contact Button */}
@@ -100,13 +100,13 @@ const Navbar = () => {
             style={{ color: '#D1DAE0' }}
           >
             <div className="relative w-5 h-5">
-              <span 
+              <span
                 className={`absolute left-0 w-5 h-0.5 bg-current transform transition-all duration-300 ${isMobileMenuOpen ? 'rotate-45 top-2' : 'top-1'}`}
               ></span>
-              <span 
+              <span
                 className={`absolute left-0 w-5 h-0.5 bg-current transform transition-all duration-300 top-2 ${isMobileMenuOpen ? 'opacity-0' : 'opacity-100'}`}
               ></span>
-              <span 
+              <span
                 className={`absolute left-0 w-5 h-0.5 bg-current transform transition-all duration-300 ${isMobileMenuOpen ? '-rotate-45 top-2' : 'top-3'}`}
               ></span>
             </div>
@@ -116,7 +116,7 @@ const Navbar = () => {
 
       {/* Mobile Menu Backdrop */}
       {isMobileMenuOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 md:hidden"
           onClick={toggleMobileMenu}
         ></div>
@@ -124,20 +124,20 @@ const Navbar = () => {
 
       {/* Mobile Side Drawer Menu */}
       {isMobileMenuOpen && (
-        <div 
-          ref={mobileMenuRef} 
+        <div
+          ref={mobileMenuRef}
           className="fixed top-0 right-0 h-full w-80 max-w-[85vw] backdrop-blur-xl bg-black/40 border-l border-white/20 z-50 md:hidden rounded-l-3xl"
         >
           <div className="flex flex-col h-full">
             {/* Header */}
             <div className="flex items-center justify-between p-6 border-b border-white/10">
-              <div 
-                className="text-white font-bold text-xl tracking-tighter" 
+              <div
+                className="text-white font-bold text-xl tracking-tighter"
                 style={{ fontFamily: 'Poppins, sans-serif' }}
               >
                 Menu
               </div>
-              <button 
+              <button
                 onClick={toggleMobileMenu}
                 className="w-10 h-10 flex items-center justify-center backdrop-blur-md bg-white/10 border border-white/20 rounded-full hover:bg-white/20 text-white/70 hover:text-white transition-all duration-300"
               >
@@ -153,14 +153,13 @@ const Navbar = () => {
                 <div className="text-xs uppercase tracking-wider text-white/50 mb-6 px-4" style={{ fontFamily: 'Poppins, sans-serif' }}>
                   Navigate
                 </div>
-                
+
                 {[
-                  { href: '#home',       label: 'Home'       },
-                  { href: '#about',      label: 'About'      },
-                  { href: '#skills',     label: 'Skills'     },
-                  { href: '#projects',   label: 'Projects'   },
+                  { href: '#home', label: 'Home' },
+                  { href: '#about', label: 'About' },
+                  { href: '#skills', label: 'Skills' },
+                  { href: '#projects', label: 'Projects' },
                   { href: '#experience', label: 'Experience' },
-                  { href: '#contact',    label: 'Contact'    },
                 ].map(({ href, label }) => (
                   <a
                     key={href}
@@ -181,8 +180,8 @@ const Navbar = () => {
                 <div className="text-xs uppercase tracking-wider text-white/50 mb-6 px-4" style={{ fontFamily: 'Poppins, sans-serif' }}>
                   Connect
                 </div>
-                <a 
-                  href="#contact" 
+                <a
+                  href="#contact"
                   className="flex items-center justify-center w-full py-5 px-6 backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl hover:bg-white/20 hover:border-white/30 transition-all duration-300"
                   style={{ fontFamily: 'Poppins, sans-serif' }}
                   onClick={toggleMobileMenu}
