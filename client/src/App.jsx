@@ -49,25 +49,26 @@ function App() {
       <div
         aria-hidden="true"
         className="pointer-events-none"
-        style={{ position: 'relative', height: 0, overflow: 'visible', zIndex: 5 }}
+        style={{ position: 'relative', height: 0, overflow: 'visible', zIndex: 1 }}
       >
+        {/* Responsive ring sizes via clamp */}
         <div style={{
           position: 'absolute', left: '50%', top: 0,
           transform: 'translate(-50%, -50%)',
-          width: '500px', height: '500px',
+          width: 'clamp(260px, 55vw, 500px)', height: 'clamp(260px, 55vw, 500px)',
           borderRadius: '50%', border: '1px solid rgba(255,255,255,0.07)'
         }} />
         <div style={{
           position: 'absolute', left: '50%', top: 0,
           transform: 'translate(-50%, -50%)',
-          width: '780px', height: '780px',
+          width: 'clamp(400px, 80vw, 780px)', height: 'clamp(400px, 80vw, 780px)',
           borderRadius: '50%', border: '1px solid rgba(255,255,255,0.05)'
         }} />
         <div style={{
           position: 'absolute', left: '50%', top: 0,
           transform: 'translate(-50%, -50%)',
-          width: '1080px', height: '1080px',
-          borderRadius: '50%', border: '1px solid rgba(255,255,255,0.035)'
+          width: 'clamp(560px, 110vw, 1080px)', height: 'clamp(560px, 110vw, 1080px)',
+          borderRadius: '50%', border: '1px solid rgba(255,255,255,0.03)'
         }} />
       </div>
 
