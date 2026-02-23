@@ -2,6 +2,8 @@ import React, { useRef, useEffect, useState } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
+import ctfImg from '../assets/images/ctf.jpg'
+
 gsap.registerPlugin(ScrollTrigger)
 
 const NAV_H = 72
@@ -29,7 +31,7 @@ const PROJECTS = [
     techStack: ['React', 'Node.js', 'MongoDB', 'Tailwind'],
     liveDemoUrl: '#',
     githubUrl: '#',
-    image: '/src/assets/images/ctf.jpg',
+    image: ctfImg,
     gradient: 'linear-gradient(135deg, rgba(56,139,253,0.15) 0%, rgba(139,92,246,0.12) 60%, rgba(10,211,245,0.08) 100%), rgb(6,8,13)',
   },
   {
@@ -40,7 +42,7 @@ const PROJECTS = [
     techStack: ['React', 'Express', 'Socket.io', 'MongoDB'],
     liveDemoUrl: '#',
     githubUrl: '#',
-    image: '/src/assets/images/ctf.jpg',
+    image: ctfImg,
     gradient: 'linear-gradient(135deg, rgba(16,185,129,0.15) 0%, rgba(6,182,212,0.12) 60%, rgba(99,102,241,0.08) 100%), rgb(6,8,13)',
   },
   {
@@ -51,7 +53,7 @@ const PROJECTS = [
     techStack: ['Next.js', 'Python', 'Stripe', 'PostgreSQL'],
     liveDemoUrl: '#',
     githubUrl: '#',
-    image: '/src/assets/images/ctf.jpg',
+    image: ctfImg,
     gradient: 'linear-gradient(135deg, rgba(245,158,11,0.14) 0%, rgba(244,63,94,0.11) 60%, rgba(139,92,246,0.08) 100%), rgb(6,8,13)',
   },
 ]

@@ -1,6 +1,15 @@
 import React, { useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
 
+import reactLogo from '../assets/images/React-icon.svg.png'
+import threejsLogo from '../assets/images/threejs.png'
+import pythonLogo from '../assets/images/Python-logo-notext.svg.png'
+import jsLogo from '../assets/images/JavaScript-logo.png'
+import githubLogo from '../assets/images/github.png'
+import tailwindLogo from '../assets/images/tailwind.png'
+import nextLogo from '../assets/images/next.webp'
+import postmanLogo from '../assets/images/postman.svg'
+
 const Hero = () => {
   const sectionRef = useRef(null)
   const leftRef = useRef(null)
@@ -89,14 +98,14 @@ const Hero = () => {
   )
 
   const logos = [
-    { src: '/src/assets/images/React-icon.svg.png', alt: 'React' },
-    { src: '/src/assets/images/threejs.png', alt: 'Three.js' },
-    { src: '/src/assets/images/Python-logo-notext.svg.png', alt: 'Python' },
-    { src: '/src/assets/images/JavaScript-logo.png', alt: 'JavaScript' },
-    { src: '/src/assets/images/github.png', alt: 'GitHub' },
-    { src: '/src/assets/images/tailwind.png', alt: 'Tailwind' },
-    { src: '/src/assets/images/next.webp', alt: 'Next.js' },
-    { src: '/src/assets/images/postman.svg', alt: 'Postman' },
+    { src: reactLogo, alt: 'React' },
+    { src: threejsLogo, alt: 'Three.js' },
+    { src: pythonLogo, alt: 'Python' },
+    { src: jsLogo, alt: 'JavaScript' },
+    { src: githubLogo, alt: 'GitHub' },
+    { src: tailwindLogo, alt: 'Tailwind' },
+    { src: nextLogo, alt: 'Next.js' },
+    { src: postmanLogo, alt: 'Postman' },
   ]
 
   return (
