@@ -67,8 +67,8 @@ const CardContent = ({ project, isMobile }) => (
     {isMobile ? (
       /* ── Mobile layout: image top, text below ── */
       <div className="flex flex-col h-full">
-        {/* Image — fixed height at top */}
-        <div className="relative w-full shrink-0 overflow-hidden" style={{ height: '42%' }}>
+        {/* Image — fixed px height so text always has room */}
+        <div className="relative w-full shrink-0 overflow-hidden" style={{ height: '180px' }}>
           {project.image ? (
             <>
               <img
@@ -77,7 +77,7 @@ const CardContent = ({ project, isMobile }) => (
                 className="absolute inset-0 w-full h-full object-cover object-center"
               />
               <div className="absolute inset-0 bg-black/20 pointer-events-none" />
-              <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-[rgb(6,8,13)] to-transparent pointer-events-none" />
+              <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-[rgb(6,8,13)] to-transparent pointer-events-none" />
             </>
           ) : (
             <div className="absolute inset-0 flex items-center justify-center bg-white/[0.02]">
@@ -86,18 +86,18 @@ const CardContent = ({ project, isMobile }) => (
           )}
         </div>
 
-        {/* Text */}
-        <div className="flex flex-col justify-center flex-1 px-5 py-4 space-y-3 overflow-hidden">
+        {/* Text — scrollable so nothing gets clipped */}
+        <div className="flex flex-col flex-1 px-4 py-3 gap-2 overflow-y-auto">
           {project.domain && (
-            <span className="inline-block self-start px-3 py-1 rounded-full text-[10px] font-medium uppercase tracking-widest bg-white/5 border border-white/10 text-white/50">
+            <span className="inline-block self-start px-2.5 py-0.5 rounded-full text-[9px] font-medium uppercase tracking-widest bg-white/5 border border-white/10 text-white/50">
               {project.domain}
             </span>
           )}
-          <h3 className="text-xl font-medium text-white leading-snug">{project.title}</h3>
-          <p className="text-xs text-white/50 leading-relaxed line-clamp-3">{project.description}</p>
-          <div className="flex flex-wrap gap-1.5">
+          <h3 className="text-base font-medium text-white leading-snug">{project.title}</h3>
+          <p className="text-[11px] text-white/50 leading-relaxed line-clamp-3">{project.description}</p>
+          <div className="flex flex-wrap gap-1">
             {project.techStack?.map((tech) => (
-              <span key={tech} className="px-2 py-0.5 rounded-lg text-[10px] font-medium bg-white/5 border border-white/10 text-white/60">
+              <span key={tech} className="px-2 py-0.5 rounded-lg text-[9px] font-medium bg-white/5 border border-white/10 text-white/60">
                 {tech}
               </span>
             ))}
@@ -108,7 +108,7 @@ const CardContent = ({ project, isMobile }) => (
                 href={project.liveDemoUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-white/20 bg-white/5 text-white/80 text-xs font-medium transition-all duration-300 hover:bg-white/10 hover:text-white"
+                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full border border-white/20 bg-white/5 text-white/80 text-[11px] font-medium transition-all duration-300 hover:bg-white/10 hover:text-white"
               >
                 Live Demo <ExternalIcon />
               </a>
@@ -118,7 +118,7 @@ const CardContent = ({ project, isMobile }) => (
                 href={project.githubUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-white/10 text-white/50 text-xs font-medium transition-all duration-300 hover:bg-white/5 hover:text-white/80"
+                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full border border-white/10 text-white/50 text-[11px] font-medium transition-all duration-300 hover:bg-white/5 hover:text-white/80"
               >
                 <GithubIcon /> GitHub
               </a>
@@ -222,7 +222,8 @@ const Projects = () => {
 
       const cards = cardRefs.current.filter(Boolean)
       const total = cards.length
-      const vh = window.innerHeight
+      const sectionH = sectionRef.current?.offsetHeight || window.innerHeight
+      const vh = sectionH
 
       cards.forEach((card, i) => gsap.set(card, { y: i === 0 ? 0 : vh }))
 
@@ -268,7 +269,7 @@ const Projects = () => {
       <section
         id="work"
         ref={sectionRef}
-        style={{ position: 'relative', width: '100%', height: '100vh', overflow: 'hidden', zIndex: 10 }}
+        style={{ position: 'relative', width: '100%', height: isMobile ? '85vh' : '100vh', overflow: 'hidden', zIndex: 10 }}
       >
         {PROJECTS.map((project, i) => (
           <div
@@ -276,10 +277,10 @@ const Projects = () => {
             ref={(el) => (cardRefs.current[i] = el)}
             style={{
               position: 'absolute',
-              top: `${NAV_H + 8}px`,
-              bottom: isMobile ? '16px' : '24px',
-              left: isMobile ? '12px' : 'clamp(16px, 3vw, 48px)',
-              right: isMobile ? '12px' : 'clamp(16px, 3vw, 48px)',
+              top: isMobile ? `${NAV_H + 4}px` : `${NAV_H + 8}px`,
+              bottom: isMobile ? '8px' : '24px',
+              left: isMobile ? '8px' : 'clamp(16px, 3vw, 48px)',
+              right: isMobile ? '8px' : 'clamp(16px, 3vw, 48px)',
               maxWidth: '82rem',
               marginLeft: 'auto',
               marginRight: 'auto',
