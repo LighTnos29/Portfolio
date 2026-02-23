@@ -8,6 +8,8 @@ import BackgroundGradient from './components/BackgroundGradient.jsx'
 import Navbar from './components/Navbar.jsx'
 import About from './components/About.jsx'
 import Projects from './components/Projects.jsx'
+import Skills from './components/Skills.jsx'
+import Experience from './components/Experience.jsx'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -42,7 +44,36 @@ function App() {
       <Navbar />
       <Hero />
       <About />
+
+      {/* ── Shared decorative rings centered at About/Skills boundary ── */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none"
+        style={{ position: 'relative', height: 0, overflow: 'visible', zIndex: 5 }}
+      >
+        <div style={{
+          position: 'absolute', left: '50%', top: 0,
+          transform: 'translate(-50%, -50%)',
+          width: '500px', height: '500px',
+          borderRadius: '50%', border: '1px solid rgba(255,255,255,0.07)'
+        }} />
+        <div style={{
+          position: 'absolute', left: '50%', top: 0,
+          transform: 'translate(-50%, -50%)',
+          width: '780px', height: '780px',
+          borderRadius: '50%', border: '1px solid rgba(255,255,255,0.05)'
+        }} />
+        <div style={{
+          position: 'absolute', left: '50%', top: 0,
+          transform: 'translate(-50%, -50%)',
+          width: '1080px', height: '1080px',
+          borderRadius: '50%', border: '1px solid rgba(255,255,255,0.035)'
+        }} />
+      </div>
+
+      <Skills />
       <Projects />
+      <Experience />
 
     </div>
   )

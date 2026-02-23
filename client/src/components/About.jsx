@@ -88,7 +88,7 @@ const About = () => {
                  py-16 sm:py-24 lg:py-36"
             style={{ zIndex: 10 }}
         >
-            <div className="w-full max-w-xs sm:max-w-xl md:max-w-2xl lg:max-w-3xl xl:max-w-4xl mx-auto text-center">
+            <div className="relative w-full max-w-xs sm:max-w-xl md:max-w-2xl lg:max-w-3xl xl:max-w-4xl mx-auto text-center">
 
                 {/* ── Bio ── */}
                 <div
