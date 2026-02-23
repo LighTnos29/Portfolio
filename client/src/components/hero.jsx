@@ -16,14 +16,12 @@ const Hero = () => {
   const rightRef = useRef(null)
   const ctaRef = useRef(null)
   const statusRef = useRef(null)
-  const glowRef = useRef(null)
-  const middleGlowRef = useRef(null)
-  const innerGlowRef = useRef(null)
   const spotlightRef = useRef(null)
   const logoRef = useRef(null)
 
   useEffect(() => {
     const ctx = gsap.context(() => {
+
       // Animate subtle glow intensity
       if (spotlightRef.current) {
         gsap.to(spotlightRef.current, {
@@ -31,23 +29,25 @@ const Hero = () => {
           duration: 2,
           repeat: -1,
           yoyo: true,
-          ease: 'power1.inOut'
+          ease: 'power1.inOut',
         })
       }
+
       // Animate logos marquee from right to left
       if (logoRef.current) {
         gsap.to(logoRef.current, {
           xPercent: -50,
           duration: 20,
           repeat: -1,
-          ease: 'none'
+          ease: 'none',
         })
       }
+
       gsap.from(leftRef.current, {
         opacity: 0,
         y: 32,
         duration: 0.8,
-        ease: 'power3.out'
+        ease: 'power3.out',
       })
 
       gsap.from(rightRef.current, {
@@ -55,7 +55,7 @@ const Hero = () => {
         y: 40,
         duration: 0.9,
         delay: 0.1,
-        ease: 'power3.out'
+        ease: 'power3.out',
       })
 
       gsap.from(statusRef.current, {
@@ -63,7 +63,7 @@ const Hero = () => {
         y: -10,
         duration: 0.5,
         delay: 0.15,
-        ease: 'power2.out'
+        ease: 'power2.out',
       })
 
       if (ctaRef.current) {
@@ -73,7 +73,7 @@ const Hero = () => {
           duration: 0.5,
           delay: 0.25,
           stagger: 0.08,
-          ease: 'power2.out'
+          ease: 'power2.out',
         })
       }
 
@@ -83,8 +83,9 @@ const Hero = () => {
         duration: 4,
         repeat: -1,
         yoyo: true,
-        ease: 'sine.inOut'
+        ease: 'sine.inOut',
       })
+
     }, sectionRef)
 
     return () => ctx.revert()
@@ -112,19 +113,11 @@ const Hero = () => {
     <section
       id="home"
       ref={sectionRef}
-      className="relative flex items-center justify-center
-                 min-h-[100dvh]
-                 px-5 sm:px-6 lg:px-8
-                 "
+      className="relative flex items-center justify-center min-h-[100dvh] px-5 sm:px-6 lg:px-8"
       style={{ zIndex: 10 }}
     >
-      {/* Inner wrapper — offset from top by navbar height so content sits truly centred */}
-      <div
-        className="w-full max-w-[92vw] xs:max-w-sm sm:max-w-xl md:max-w-2xl lg:max-w-3xl xl:max-w-4xl
-                   mx-auto text-center
-                   mt-14 sm:mt-16 md:mt-20
-                   py-8 sm:py-0"
-      >
+      {/* Inner wrapper */}
+      <div className="w-full max-w-[92vw] xs:max-w-sm sm:max-w-xl md:max-w-2xl lg:max-w-3xl xl:max-w-4xl mx-auto text-center mt-14 sm:mt-16 md:mt-20 py-8 sm:py-0">
 
         {/* ── CTA pill buttons ── */}
         <div
@@ -137,27 +130,14 @@ const Hero = () => {
               ref={spotlightRef}
               className="absolute inset-0 rounded-full bg-[#72A9CF]/50 blur-sm"
             />
-            <button
-              className="relative inline-flex items-center justify-center
-                         px-4 sm:px-6 py-1.5 sm:py-3
-                         rounded-full bg-black/80 border border-[#72A9CF]/50
-                         text-white font-medium text-[11px] sm:text-sm
-                         transition-all duration-300 hover:bg-black"
-            >
+            <button className="relative inline-flex items-center justify-center px-4 sm:px-6 py-1.5 sm:py-3 rounded-full bg-black/80 border border-[#72A9CF]/50 text-white font-medium text-[11px] sm:text-sm transition-all duration-300 hover:bg-black">
               Full Stack
             </button>
           </div>
 
           {/* Problem Solver badge */}
           <div className="relative inline-flex items-center justify-center">
-            <button
-              className="relative inline-flex items-center justify-center
-                         px-4 sm:px-6 py-1.5 sm:py-3
-                         rounded-full bg-white/10 backdrop-blur-md
-                         border border-white/30
-                         text-white font-medium text-[11px] sm:text-sm
-                         transition-all duration-300 hover:border-white/50 hover:bg-white/5"
-            >
+            <button className="relative inline-flex items-center justify-center px-4 sm:px-6 py-1.5 sm:py-3 rounded-full bg-white/10 backdrop-blur-md border border-white/30 text-white font-medium text-[11px] sm:text-sm transition-all duration-300 hover:border-white/50 hover:bg-white/5">
               Problem Solver
             </button>
           </div>
@@ -177,11 +157,8 @@ const Hero = () => {
 
         {/* ── Subheading ── */}
         <p
-          className="text-[13px] sm:text-base md:text-lg
-                     text-white/50
-                     w-full max-w-[36ch] sm:max-w-prose mx-auto
-                     mb-8 sm:mb-14
-                     leading-relaxed"
+          ref={statusRef}
+          className="text-[13px] sm:text-base md:text-lg text-white/50 w-full max-w-[36ch] sm:max-w-prose mx-auto mb-8 sm:mb-14 leading-relaxed"
         >
           Udit Agrawal — I build digital products that move fast and scale faster.
           MERN stack specialist who speaks Python and thinks in systems.
@@ -189,10 +166,11 @@ const Hero = () => {
 
         {/* ── Tech logo marquee ── */}
         <div
+          ref={rightRef}
           className="relative overflow-hidden w-full"
           style={{
             maskImage: 'linear-gradient(to right, transparent, black 12%, black 88%, transparent)',
-            WebkitMaskImage: 'linear-gradient(to right, transparent, black 12%, black 88%, transparent)'
+            WebkitMaskImage: 'linear-gradient(to right, transparent, black 12%, black 88%, transparent)',
           }}
         >
           <div

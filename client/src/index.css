@@ -5,6 +5,10 @@
     scroll-behavior: smooth;
     scroll-padding-top: 80px; /* offset for fixed navbar */
     overflow-x: hidden;
+    /* smoother font rendering */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
   body {
     overflow-x: hidden;
@@ -12,6 +16,21 @@
   html, body, * {
     font-family: 'Poppins', sans-serif;
     letter-spacing: -0.03em;
+  }
+
+  /* smooth all interactive elements */
+  a, button {
+    transition: opacity 0.2s ease, transform 0.2s ease, background 0.25s ease, border-color 0.25s ease, color 0.2s ease, box-shadow 0.25s ease;
+  }
+
+  /* GPU-accelerate anything that animates */
+  [data-gsap], .gsap-animated {
+    will-change: transform, opacity;
+  }
+
+  /* smoother image rendering */
+  img {
+    image-rendering: -webkit-optimize-contrast;
   }
 }
 
