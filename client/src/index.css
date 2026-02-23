@@ -1,6 +1,14 @@
 @import "tailwindcss";
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 80px; /* offset for fixed navbar */
+    overflow-x: hidden;
+  }
+  body {
+    overflow-x: hidden;
+  }
   html, body, * {
     font-family: 'Poppins', sans-serif;
     letter-spacing: -0.03em;

@@ -76,41 +76,11 @@ const Navbar = () => {
 
         {/* Desktop Navigation Links */}
         <div className="hidden md:flex items-center space-x-6 lg:space-x-8">
-          <a
-            href="#work"
-            className="transition-colors duration-300 text-sm lg:text-base xl:text-lg font-medium hover:text-white"
-            style={{ color: '#D1DAE0', fontFamily: 'Poppins, sans-serif' }}
-          >
-            Work
-          </a>
-          <a
-            href="#experience"
-            className="transition-colors duration-300 text-sm lg:text-base xl:text-lg font-medium hover:text-white"
-            style={{ color: '#D1DAE0', fontFamily: 'Poppins, sans-serif' }}
-          >
-            Experience
-          </a>
-          <a
-            href="#about"
-            className="transition-colors duration-300 text-sm lg:text-base xl:text-lg font-medium hover:text-white"
-            style={{ color: '#D1DAE0', fontFamily: 'Poppins, sans-serif' }}
-          >
-            About
-          </a>
-          <a
-            href="#skills"
-            className="transition-colors duration-300 text-sm lg:text-base xl:text-lg font-medium hover:text-white"
-            style={{ color: '#D1DAE0', fontFamily: 'Poppins, sans-serif' }}
-          >
-            Skills
-          </a>
-          <a
-            href="#projects"
-            className="transition-colors duration-300 text-sm lg:text-base xl:text-lg font-medium hover:text-white"
-            style={{ color: '#D1DAE0', fontFamily: 'Poppins, sans-serif' }}
-          >
-            Projects
-          </a>
+          <a href="#home"       className="transition-colors duration-300 text-sm lg:text-base xl:text-lg font-medium hover:text-white" style={{ color: '#D1DAE0', fontFamily: 'Poppins, sans-serif' }}>Home</a>
+          <a href="#about"      className="transition-colors duration-300 text-sm lg:text-base xl:text-lg font-medium hover:text-white" style={{ color: '#D1DAE0', fontFamily: 'Poppins, sans-serif' }}>About</a>
+          <a href="#skills"     className="transition-colors duration-300 text-sm lg:text-base xl:text-lg font-medium hover:text-white" style={{ color: '#D1DAE0', fontFamily: 'Poppins, sans-serif' }}>Skills</a>
+          <a href="#projects"   className="transition-colors duration-300 text-sm lg:text-base xl:text-lg font-medium hover:text-white" style={{ color: '#D1DAE0', fontFamily: 'Poppins, sans-serif' }}>Projects</a>
+          <a href="#experience" className="transition-colors duration-300 text-sm lg:text-base xl:text-lg font-medium hover:text-white" style={{ color: '#D1DAE0', fontFamily: 'Poppins, sans-serif' }}>Experience</a>
 
           {/* Contact Button */}
           <a
@@ -184,60 +154,26 @@ const Navbar = () => {
                   Navigate
                 </div>
                 
-                <a 
-                  href="#work" 
-                  className="flex items-center group py-4 px-6 rounded-2xl backdrop-blur-md bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all duration-300"
-                  style={{ fontFamily: 'Poppins, sans-serif' }}
-                  onClick={toggleMobileMenu}
-                >
-                  <span className="text-base font-medium group-hover:text-white transition-colors" style={{ color: '#D1DAE0' }}>
-                    Work
-                  </span>
-                </a>
-
-                <a 
-                  href="#experience" 
-                  className="flex items-center group py-4 px-6 rounded-2xl backdrop-blur-md bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all duration-300"
-                  style={{ fontFamily: 'Poppins, sans-serif' }}
-                  onClick={toggleMobileMenu}
-                >
-                  <span className="text-base font-medium group-hover:text-white transition-colors" style={{ color: '#D1DAE0' }}>
-                    Experience
-                  </span>
-                </a>
-
-                <a 
-                  href="#about" 
-                  className="flex items-center group py-4 px-6 rounded-2xl backdrop-blur-md bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all duration-300"
-                  style={{ fontFamily: 'Poppins, sans-serif' }}
-                  onClick={toggleMobileMenu}
-                >
-                  <span className="text-base font-medium group-hover:text-white transition-colors" style={{ color: '#D1DAE0' }}>
-                    About
-                  </span>
-                </a>
-
-                <a 
-                  href="#skills" 
-                  className="flex items-center group py-4 px-6 rounded-2xl backdrop-blur-md bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all duration-300"
-                  style={{ fontFamily: 'Poppins, sans-serif' }}
-                  onClick={toggleMobileMenu}
-                >
-                  <span className="text-base font-medium group-hover:text-white transition-colors" style={{ color: '#D1DAE0' }}>
-                    Skills
-                  </span>
-                </a>
-
-                <a 
-                  href="#projects" 
-                  className="flex items-center group py-4 px-6 rounded-2xl backdrop-blur-md bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all duration-300"
-                  style={{ fontFamily: 'Poppins, sans-serif' }}
-                  onClick={toggleMobileMenu}
-                >
-                  <span className="text-base font-medium group-hover:text-white transition-colors" style={{ color: '#D1DAE0' }}>
-                    Projects
-                  </span>
-                </a>
+                {[
+                  { href: '#home',       label: 'Home'       },
+                  { href: '#about',      label: 'About'      },
+                  { href: '#skills',     label: 'Skills'     },
+                  { href: '#projects',   label: 'Projects'   },
+                  { href: '#experience', label: 'Experience' },
+                  { href: '#contact',    label: 'Contact'    },
+                ].map(({ href, label }) => (
+                  <a
+                    key={href}
+                    href={href}
+                    className="flex items-center group py-4 px-6 rounded-2xl backdrop-blur-md bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all duration-300"
+                    style={{ fontFamily: 'Poppins, sans-serif' }}
+                    onClick={toggleMobileMenu}
+                  >
+                    <span className="text-base font-medium group-hover:text-white transition-colors" style={{ color: '#D1DAE0' }}>
+                      {label}
+                    </span>
+                  </a>
+                ))}
               </div>
 
               {/* Contact Section */}

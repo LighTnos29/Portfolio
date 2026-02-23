@@ -10,6 +10,7 @@ import About from './components/About.jsx'
 import Projects from './components/Projects.jsx'
 import Skills from './components/Skills.jsx'
 import Experience from './components/Experience.jsx'
+import Contact from './components/Contact.jsx'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -37,7 +38,7 @@ function App() {
   }, [])
 
   return (
-    <div className="relative min-h-screen" style={{ backgroundColor: '#000000' }}>
+    <div className="relative min-h-screen" style={{ backgroundColor: '#000000', overflowX: 'hidden' }}>
 
       <BackgroundGradient />
 
@@ -67,7 +68,7 @@ function App() {
         <div style={{
           position: 'absolute', left: '50%', top: 0,
           transform: 'translate(-50%, -50%)',
-          width: 'clamp(560px, 110vw, 1080px)', height: 'clamp(560px, 110vw, 1080px)',
+          width: 'clamp(560px, 95vw, 1080px)', height: 'clamp(560px, 95vw, 1080px)',
           borderRadius: '50%', border: '1px solid rgba(255,255,255,0.03)'
         }} />
       </div>
@@ -75,6 +76,7 @@ function App() {
       <Skills />
       <Projects />
       <Experience />
+      <Contact />
 
     </div>
   )
