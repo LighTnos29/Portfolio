@@ -49,12 +49,14 @@ console.log('Connecting to MongoDB...')
 const safeUri = connectionString.replace(/\/\/[^:]+:[^@]+@/, '//***:***@')
 console.log("Connection string format:", safeUri)
 
-// MongoDB connection options for better reliability
+// Disable buffering to prevent timeout errors
+mongoose.set('bufferCommands', false)
+
+// MongoDB connection options
 const mongooseOptions = {
-    serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
-    socketTimeoutMS: 45000, // Close sockets after 45s of inactivity
-    retryWrites: true,
-    w: 'majority'
+    serverSelectionTimeoutMS: 30000,
+    socketTimeoutMS: 45000,
+    retryWrites: true
 }
 
 mongoose

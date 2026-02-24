@@ -11,7 +11,7 @@ const hashIP = (ip) => {
 // Get comprehensive analytics data (admin only)
 module.exports.getAnalytics = async (req, res) => {
     try {
-        // Check if MongoDB is connected
+        // Check MongoDB connection
         if (mongoose.connection.readyState !== 1) {
             return res.status(503).json({
                 success: false,

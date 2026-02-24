@@ -57,6 +57,15 @@ module.exports.getProject = async (req, res) => {
 // Create project (admin only)
 module.exports.createProject = async (req, res) => {
     try {
+        // Check MongoDB connection
+        if (mongoose.connection.readyState !== 1) {
+            return res.status(503).json({
+                success: false,
+                message: "Database connection not available",
+                error: "MongoDB is not connected"
+            })
+        }
+
         let { title, domain, description, techStack, liveDemoUrl, githubUrl, imageUrl } = req.body
         if (!title || !domain) {
             return res.status(400).json({
@@ -89,6 +98,15 @@ module.exports.createProject = async (req, res) => {
 // Update project (admin only)
 module.exports.updateProject = async (req, res) => {
     try {
+        // Check MongoDB connection
+        if (mongoose.connection.readyState !== 1) {
+            return res.status(503).json({
+                success: false,
+                message: "Database connection not available",
+                error: "MongoDB is not connected"
+            })
+        }
+
         const { title, domain, description, techStack, liveDemoUrl, githubUrl, imageUrl } = req.body
         const project = await projectModel.findByIdAndUpdate(
             req.params.id,
@@ -118,6 +136,15 @@ module.exports.updateProject = async (req, res) => {
 // Delete project (admin only)
 module.exports.deleteProject = async (req, res) => {
     try {
+        // Check MongoDB connection
+        if (mongoose.connection.readyState !== 1) {
+            return res.status(503).json({
+                success: false,
+                message: "Database connection not available",
+                error: "MongoDB is not connected"
+            })
+        }
+
         const project = await projectModel.findByIdAndDelete(req.params.id)
         if (!project) {
             return res.status(404).json({
@@ -203,6 +230,15 @@ module.exports.githubPrivateRepoFetch = async (req, res) => {
 // Create project from GitHub repo using AI (admin only)
 module.exports.createProjectFromRepo = async (req, res) => {
     try {
+        // Check MongoDB connection
+        if (mongoose.connection.readyState !== 1) {
+            return res.status(503).json({
+                success: false,
+                message: "Database connection not available",
+                error: "MongoDB is not connected"
+            })
+        }
+
         const { repoName } = req.body;
         const owner = "LighTnos29";
 
