@@ -15,7 +15,8 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS
 // Log allowed origins on startup
 console.log('CORS Allowed Origins:', allowedOrigins)
 
-app.use(cors({
+// CORS configuration with explicit handling
+const corsOptions = {
     origin: function (origin, callback) {
         // Allow requests with no origin (like mobile apps or curl requests, or same-origin)
         if (!origin) return callback(null, true)
@@ -34,8 +35,12 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
     exposedHeaders: ['Set-Cookie'],
     preflightContinue: false,
-    optionsSuccessStatus: 204
-}))
+    optionsSuccessStatus: 204,
+    maxAge: 86400 // Cache preflight requests for 24 hours
+}
+
+// Apply CORS middleware (handles OPTIONS preflight automatically)
+app.use(cors(corsOptions))
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
