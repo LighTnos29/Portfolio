@@ -23,12 +23,15 @@ app.use(cors({
             // Log for debugging
             console.log('CORS blocked origin:', origin)
             console.log('Allowed origins:', allowedOrigins)
-            callback(new Error('Not allowed by CORS'))
+            callback(new Error(`Not allowed by CORS. Origin: ${origin} not in allowed list.`))
         }
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    exposedHeaders: ['Set-Cookie'],
+    preflightContinue: false,
+    optionsSuccessStatus: 204
 }))
 
 app.use(express.json())
