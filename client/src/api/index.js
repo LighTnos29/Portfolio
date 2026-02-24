@@ -1,4 +1,6 @@
-// Use environment variable for production, fallback to /api for development
+// Use environment variable for production, fallback to /api for development (Vite proxy)
+// Note: In production, VITE_API_BASE_URL should be the full backend URL WITHOUT /api suffix
+// Example: https://portfolio-qpkw.onrender.com (not https://portfolio-qpkw.onrender.com/api)
 const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api'
 
 // Backend base URL for serving static files (images)

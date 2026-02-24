@@ -128,10 +128,10 @@ Before running this project, make sure you have:
 3. **Set up environment variables** (optional, for production)
    Create a `.env` file in the client directory:
    ```env
-   # Backend API Base URL
-   # For production: Use your Render backend URL
-   # For development: Leave empty to use /api (Vite proxy)
-   VITE_API_BASE_URL=https://portfolio-qpkw.onrender.com/api
+   # Backend API Base URL (without /api suffix - server routes are at /admin and /project)
+   # For production: Use your Render backend URL (e.g., https://portfolio-qpkw.onrender.com)
+   # For development: Leave empty to use /api (Vite proxy will rewrite it)
+   VITE_API_BASE_URL=https://portfolio-qpkw.onrender.com
    
    # Backend URL for serving static files (images)
    # For production: Use your Render backend URL
