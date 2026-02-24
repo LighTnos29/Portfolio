@@ -21,10 +21,6 @@ async function request(endpoint, options = {}) {
         ...options,
     }
 
-    // Debug logging (remove in production if needed)
-    if (import.meta.env.DEV) {
-        console.log('API Request:', { method: config.method || 'GET', url, endpoint })
-    }
 
     let response
     try {
@@ -60,7 +56,7 @@ async function request(endpoint, options = {}) {
         throw {
             status: response.status,
             message: `Server returned ${response.status} ${response.statusText}`,
-            error: text.substring(0, 100) // First 100 chars of response
+            error: text.substring(0, 200) // First 200 chars of response
         }
     }
 
@@ -91,17 +87,11 @@ export const trackProjectView = (projectId, projectTitle) =>
 
 // ── Admin API ───────────────────────────────────────────────────────────────
 
-export const adminLogin = (code) => {
-    console.log('[adminLogin] Calling login with:', {
-        code: code ? '***' : 'empty',
-        apiBase: API_BASE,
-        fullUrl: `${API_BASE.endsWith('/') ? API_BASE.slice(0, -1) : API_BASE}/admin/login`
-    })
-    return request('/admin/login', {
+export const adminLogin = (code) =>
+    request('/admin/login', {
         method: 'POST',
         body: JSON.stringify({ code }),
     })
-}
 
 export const adminLogout = () =>
     request('/admin/logout', {
