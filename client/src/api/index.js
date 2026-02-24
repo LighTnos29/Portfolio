@@ -1,24 +1,16 @@
-// Use environment variable for production, fallback to /api for development (Vite proxy)
-// Note: In production, VITE_API_BASE_URL should be the full backend URL WITHOUT /api suffix
-// Example: https://portfolio-qpkw.onrender.com (not https://portfolio-qpkw.onrender.com/api)
 const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api'
 
-// Warn if API_BASE is not set in production
 if (import.meta.env.PROD && API_BASE === '/api') {
     console.error('⚠️ VITE_API_BASE_URL is not set! Requests will fail. Set it in Vercel environment variables.')
 }
 
-// Log API_BASE in production for debugging
 if (import.meta.env.PROD) {
     console.log('🔗 API_BASE configured as:', API_BASE)
 }
 
-// Backend base URL for serving static files (images)
 export const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000'
 
-// Helper for making API calls
 async function request(endpoint, options = {}) {
-    // Ensure endpoint starts with / and API_BASE doesn't end with /
     const cleanBase = API_BASE.endsWith('/') ? API_BASE.slice(0, -1) : API_BASE
     const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`
     const url = `${cleanBase}${cleanEndpoint}`
@@ -36,7 +28,6 @@ async function request(endpoint, options = {}) {
     try {
         response = await fetch(url, config)
     } catch (error) {
-        // Network error (CORS, connection failed, etc.)
         const errorDetails = {
             status: 0,
             message: 'Network error: Unable to connect to server. Please check your connection and API URL.',
@@ -49,7 +40,6 @@ async function request(endpoint, options = {}) {
         throw errorDetails
     }
 
-    // Check if response has content before parsing JSON
     const contentType = response.headers.get('content-type')
     const hasJsonContent = contentType && contentType.includes('application/json')
 
@@ -75,20 +65,19 @@ async function request(endpoint, options = {}) {
         }
     }
 
-    if (!response.ok) {
-        // Special handling for 405 errors (common when API_BASE is wrong)
-        if (response.status === 405) {
-            const errorMsg = API_BASE === '/api' && import.meta.env.PROD
-                ? 'Method not allowed. VITE_API_BASE_URL is not set in Vercel. Please configure it in Vercel environment variables.'
-                : `Method not allowed (405). Check if the API URL is correct. Current API_BASE: ${API_BASE}`
-            throw {
-                status: response.status,
-                message: errorMsg,
-                ...data
+        if (!response.ok) {
+            if (response.status === 405) {
+                const errorMsg = API_BASE === '/api' && import.meta.env.PROD
+                    ? 'Method not allowed. VITE_API_BASE_URL is not set in Vercel. Please configure it in Vercel environment variables.'
+                    : `Method not allowed (405). Check if the API URL is correct. Current API_BASE: ${API_BASE}`
+                throw {
+                    status: response.status,
+                    message: errorMsg,
+                    ...data
+                }
             }
+            throw { status: response.status, ...data }
         }
-        throw { status: response.status, ...data }
-    }
 
     return data
 }

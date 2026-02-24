@@ -96,7 +96,7 @@ const Navbar = () => {
               </svg>
             </a>
             <a
-              href="https://www.linkedin.com/in/your-linkedin-profile"
+              href="https://www.linkedin.com/in/udit-agrawal-141292276/"
               target="_blank"
               rel="noopener noreferrer"
               className="w-9 h-9 flex items-center justify-center rounded-full backdrop-blur-md bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300"
@@ -220,7 +220,7 @@ const Navbar = () => {
                     </svg>
                   </a>
                   <a
-                    href="https://www.linkedin.com/in/your-linkedin-profile"
+                    href="https://www.linkedin.com/in/udit-agrawal-141292276/"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-12 h-12 flex items-center justify-center rounded-full backdrop-blur-md bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300"

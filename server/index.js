@@ -9,15 +9,12 @@ const projectRouter = require('./routes/projectRouter')
 const adminRouter = require('./routes/adminRouter')
 const addCorsHeaders = require('./middlewares/corsHandler')
 
-// CORS configuration - supports both development and production
 const allowedOrigins = process.env.ALLOWED_ORIGINS
     ? process.env.ALLOWED_ORIGINS.split(',').map(origin => origin.trim())
-    : ['http://localhost:5173', 'http://localhost:5174'] // Default to localhost for development
+    : ['http://localhost:5173', 'http://localhost:5174']
 
-// Log allowed origins on startup
 console.log('CORS Allowed Origins:', allowedOrigins)
 
-// Helper function to check if origin is allowed
 const isOriginAllowed = (origin) => {
     if (!origin) return false
     const normalizedOrigin = origin.trim().toLowerCase()
@@ -25,18 +22,13 @@ const isOriginAllowed = (origin) => {
     return normalizedAllowed.indexOf(normalizedOrigin) !== -1 || allowedOrigins.indexOf(origin) !== -1
 }
 
-// CORS configuration with explicit handling
 const corsOptions = {
     origin: function (origin, callback) {
-        // Allow requests with no origin (like mobile apps or curl requests, or same-origin)
         if (!origin) return callback(null, true)
-
         if (isOriginAllowed(origin)) {
             callback(null, true)
         } else {
-            // Log for debugging
             console.log('CORS blocked origin:', origin)
-            console.log('Allowed origins:', allowedOrigins)
             callback(new Error(`Not allowed by CORS. Origin: ${origin} not in allowed list.`))
         }
     },
@@ -46,43 +38,36 @@ const corsOptions = {
     exposedHeaders: ['Set-Cookie'],
     preflightContinue: false,
     optionsSuccessStatus: 204,
-    maxAge: 86400 // Cache preflight requests for 24 hours
+    maxAge: 86400
 }
 
-// Apply CORS middleware BEFORE other middleware (handles OPTIONS preflight automatically)
 app.use(cors(corsOptions))
 
-// Middleware to ensure CORS headers on ALL responses
 app.use((req, res, next) => {
-    // Override res.json
     const originalJson = res.json.bind(res)
     res.json = function (data) {
         addCorsHeaders(req, res)
         return originalJson(data)
     }
 
-    // Override res.send
     const originalSend = res.send.bind(res)
     res.send = function (data) {
         addCorsHeaders(req, res)
         return originalSend(data)
     }
 
-    // Override res.status().json() pattern
     const originalStatus = res.status.bind(res)
     res.status = function (code) {
         addCorsHeaders(req, res)
         return originalStatus(code)
     }
 
-    // Handle OPTIONS preflight
     if (req.method === 'OPTIONS') {
         addCorsHeaders(req, res)
         res.header('Access-Control-Max-Age', '86400')
         return res.status(204).send()
     }
 
-    // Add headers immediately
     addCorsHeaders(req, res)
     next()
 })
@@ -91,14 +76,12 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(cookieParser())
 
-// Serve uploaded images
 app.use('/uploads', express.static('public/uploads'))
 
 app.get('/', (req, res) => {
     res.send("Hello")
 })
 
-// Health check endpoint with MongoDB status
 app.get('/health', (req, res) => {
     addCorsHeaders(req, res)
     const mongoStatus = mongoose.connection.readyState
@@ -122,20 +105,12 @@ app.get('/health', (req, res) => {
     })
 })
 
-// Project routes (public read + protected write)
 app.use("/project", projectRouter)
-
-// Admin routes
 app.use("/admin", adminRouter)
 
-// Global error handler - ensures CORS headers are always sent
 app.use((err, req, res, next) => {
     console.error('Global error handler:', err);
-
-    // Always set CORS headers on errors
     addCorsHeaders(req, res)
-
-    // Send error response
     const status = err.status || err.statusCode || 500;
     res.status(status).json({
         success: false,
@@ -144,11 +119,8 @@ app.use((err, req, res, next) => {
     });
 });
 
-// 404 handler
 app.use((req, res) => {
-    // Always set CORS headers for 404
     addCorsHeaders(req, res)
-
     res.status(404).json({
         success: false,
         message: 'Route not found',

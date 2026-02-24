@@ -11,6 +11,15 @@ const hashIP = (ip) => {
 // Get comprehensive analytics data (admin only)
 module.exports.getAnalytics = async (req, res) => {
     try {
+        // Check MongoDB connection
+        if (mongoose.connection.readyState !== 1) {
+            return res.status(503).json({
+                success: false,
+                message: "Database connection not available. Please try again.",
+                error: "MongoDB is not connected"
+            })
+        }
+
         const now = new Date();
         const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
         const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
@@ -127,20 +136,14 @@ module.exports.getAnalytics = async (req, res) => {
 
     } catch (error) {
         console.error('Error fetching analytics:', error);
-        console.error('Error stack:', error.stack);
         
-        // Handle MongoDB connection errors
-        if (error.name === 'MongoServerError' || 
-            error.name === 'MongooseError' || 
-            error.name === 'MongoNetworkError' ||
-            error.message?.includes('buffering timed out') ||
-            error.message?.includes('connection') ||
-            mongoose.connection.readyState !== 1) {
+        // Handle MongoDB errors
+        if (error.name === 'MongoServerError' || error.name === 'MongooseError' || error.name === 'MongoNetworkError') {
             return res.status(503).json({
                 success: false,
-                message: "Database connection not available. Please try again in a moment.",
-                error: "MongoDB connection error"
-            });
+                message: "Database connection error. Please try again.",
+                error: "MongoDB connection issue"
+            })
         }
         
         res.status(500).json({

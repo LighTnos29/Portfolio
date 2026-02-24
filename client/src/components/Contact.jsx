@@ -266,7 +266,7 @@ const Contact = () => {
                             <span className="text-white/20 text-xs sm:text-sm font-light" style={{ letterSpacing: '-0.01em' }}>
                                 © {new Date().getFullYear()} Lightnos.dev — Udit Agrawal
                             </span>
-                            
+
                             {/* Social Links */}
                             <div className="flex items-center gap-3">
                                 <a
@@ -281,7 +281,7 @@ const Contact = () => {
                                     </svg>
                                 </a>
                                 <a
-                                    href="https://www.linkedin.com/in/your-linkedin-profile"
+                                    href="https://www.linkedin.com/in/udit-agrawal-141292276/"
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="w-9 h-9 flex items-center justify-center rounded-full backdrop-blur-md bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all duration-300"
@@ -292,7 +292,7 @@ const Contact = () => {
                                     </svg>
                                 </a>
                             </div>
-                            
+
                             <span className="text-white/15 text-[10px] sm:text-xs font-light" style={{ letterSpacing: '-0.01em' }}>
                                 Built with React · GSAP · Tailwind
                             </span>
