@@ -1,4 +1,8 @@
-const API_BASE = '/api'
+// Use environment variable for production, fallback to /api for development
+const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api'
+
+// Backend base URL for serving static files (images)
+export const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000'
 
 // Helper for making API calls
 async function request(endpoint, options = {}) {

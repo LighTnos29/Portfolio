@@ -21,6 +21,7 @@ import {
   createProjectFromRepo,
   uploadImage,
   adminLogout,
+  BACKEND_URL,
 } from '../api'
 import SEO from '../components/SEO.jsx'
 
@@ -79,7 +80,7 @@ const ProjectFormModal = ({ project, onSave, onClose }) => {
   })
   const [saving, setSaving] = useState(false)
   const [uploadingImage, setUploadingImage] = useState(false)
-  const [imagePreview, setImagePreview] = useState(project?.imageUrl ? `http://localhost:3000${project.imageUrl}` : null)
+  const [imagePreview, setImagePreview] = useState(project?.imageUrl ? `${BACKEND_URL}${project.imageUrl}` : null)
   const [imageError, setImageError] = useState('')
   const [dragActive, setDragActive] = useState(false)
 
@@ -110,7 +111,7 @@ const ProjectFormModal = ({ project, onSave, onClose }) => {
     try {
       const result = await uploadImage(file)
       setForm({ ...form, imageUrl: result.imageUrl })
-      setImagePreview(`http://localhost:3000${result.imageUrl}`)
+      setImagePreview(`${BACKEND_URL}${result.imageUrl}`)
     } catch (err) {
       setImageError(err.message || 'Failed to upload image. Please try again.')
       setImagePreview(null)
@@ -249,8 +250,8 @@ const ProjectFormModal = ({ project, onSave, onClose }) => {
                 onDragOver={handleDrag}
                 onDrop={handleDrop}
                 className={`relative rounded-xl border-2 border-dashed transition-all duration-200 ${dragActive
-                    ? 'border-white/40 bg-white/10'
-                    : 'border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/[0.07]'
+                  ? 'border-white/40 bg-white/10'
+                  : 'border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/[0.07]'
                   } ${uploadingImage ? 'opacity-50 pointer-events-none' : 'cursor-pointer'}`}
               >
                 <input

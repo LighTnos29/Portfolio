@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { getProjects, trackProjectView } from '../api'
+import { getProjects, trackProjectView, BACKEND_URL } from '../api'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -43,7 +43,7 @@ const CardContent = ({ project, isMobile, onProjectClick }) => (
           {project.imageUrl ? (
             <>
               <img
-                src={project.imageUrl.startsWith('http') ? project.imageUrl : `http://localhost:3000${project.imageUrl}`}
+                src={project.imageUrl.startsWith('http') ? project.imageUrl : `${BACKEND_URL}${project.imageUrl}`}
                 alt={project.title}
                 className="absolute inset-0 w-full h-full object-cover"
               />
@@ -135,7 +135,7 @@ const CardContent = ({ project, isMobile, onProjectClick }) => (
           {project.imageUrl ? (
             <>
               <img
-                src={project.imageUrl.startsWith('http') ? project.imageUrl : `http://localhost:3000${project.imageUrl}`}
+                src={project.imageUrl.startsWith('http') ? project.imageUrl : `${BACKEND_URL}${project.imageUrl}`}
                 alt={project.title}
                 className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-[1.03]"
               />

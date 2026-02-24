@@ -125,10 +125,25 @@ Before running this project, make sure you have:
    npm install
    ```
 
-3. **Add resume file** (optional)
+3. **Set up environment variables** (optional, for production)
+   Create a `.env` file in the client directory:
+   ```env
+   # Backend API Base URL
+   # For production: Use your Render backend URL
+   # For development: Leave empty to use /api (Vite proxy)
+   VITE_API_BASE_URL=https://portfolio-qpkw.onrender.com/api
+   
+   # Backend URL for serving static files (images)
+   # For production: Use your Render backend URL
+   # For development: Use http://localhost:3000
+   VITE_BACKEND_URL=https://portfolio-qpkw.onrender.com
+   ```
+   **Note**: For local development, you can leave these empty - Vite proxy will handle it.
+
+4. **Add resume file** (optional)
    Place your resume PDF in `client/public/resume.pdf` for download functionality
 
-4. **Start the development server**
+5. **Start the development server**
    ```bash
    npm run dev
    ```
