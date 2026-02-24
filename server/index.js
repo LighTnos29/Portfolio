@@ -15,23 +15,6 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS
 // Log allowed origins on startup
 console.log('CORS Allowed Origins:', allowedOrigins)
 
-// Handle CORS preflight requests explicitly
-app.options('*', cors({
-    origin: function (origin, callback) {
-        if (!origin) return callback(null, true)
-        if (allowedOrigins.indexOf(origin) !== -1) {
-            callback(null, true)
-        } else {
-            console.log('CORS preflight blocked origin:', origin)
-            callback(new Error('Not allowed by CORS'))
-        }
-    },
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-    optionsSuccessStatus: 204
-}))
-
 app.use(cors({
     origin: function (origin, callback) {
         // Allow requests with no origin (like mobile apps or curl requests, or same-origin)
