@@ -5,41 +5,52 @@ A comprehensive full-stack portfolio application featuring a modern React fronte
 ## 🚀 Features
 
 ### Frontend Features
-- **Modern React Interface**: Built with React 18+ and modern hooks
+- **Modern React Interface**: Built with React 19 and modern hooks
 - **Responsive Design**: Tailwind CSS for mobile-first, responsive layouts
-- **Smooth Animations**: Advanced animations using Framer Motion, GSAP, and Lenis Scroll
-- **Interactive Portfolio**: Dynamic project showcase with filtering and search
-- **Admin Dashboard**: Secure admin interface for managing projects
+- **Smooth Animations**: Advanced animations using GSAP and Lenis Scroll
+- **Interactive Portfolio**: Dynamic project showcase with pinned scroll animations
+- **Admin Dashboard**: Secure admin interface for managing projects and analytics
 - **Real-time Updates**: Live project management and GitHub integration
+- **SEO Optimized**: Dynamic meta tags with react-helmet-async for better discoverability
+- **Scroll to Top**: Floating button with smooth scroll animation
+- **Resume Download**: One-click resume download from hero section
+- **Contact Form**: EmailJS integration for contact form submissions
+- **Analytics Dashboard**: Visual charts and statistics for visitor tracking
 
 ### Backend Features
 - **Authentication System**: JWT-based admin authentication with secure cookie management
-- **Project Management**: CRUD operations for portfolio projects
+- **Project Management**: Full CRUD operations for portfolio projects
+- **Image Upload**: Local file storage for project images using Multer
 - **GitHub Integration**: Fetch public and private repositories
 - **AI-Powered Analysis**: Automatically generate project descriptions using Google Gemini AI
 - **Repository Processing**: Convert GitHub repositories into structured portfolio projects
+- **Analytics Tracking**: Visitor and project view tracking with privacy-focused IP hashing
 - **Secure Middleware**: Protected routes with authentication middleware
+- **Session Management**: Automatic logout and session expiry handling
 
 ## 🛠️ Technologies Used
 
 ### Frontend Stack
-- **Framework**: React 18+ with modern hooks and context
-- **Styling**: Tailwind CSS for utility-first responsive design
+- **Framework**: React 19 with modern hooks
+- **Routing**: React Router DOM v7
+- **Styling**: Tailwind CSS v4 for utility-first responsive design
 - **Animations**: 
-  - **Framer Motion**: Component animations and page transitions
   - **GSAP**: Advanced timeline animations and scroll-triggered effects
   - **Lenis**: Smooth scroll implementation and scroll-based animations
-- **State Management**: React Context API / Redux (if needed)
-- **HTTP Client**: Axios for API communication
+- **Charts**: Recharts for analytics visualization
+- **SEO**: react-helmet-async for dynamic meta tags
+- **Email**: EmailJS for contact form submissions
+- **HTTP Client**: Fetch API with centralized service layer
 - **Build Tool**: Vite for fast development and optimized builds
 
 ### Backend Stack
 - **Backend**: Node.js, Express.js
 - **Database**: MongoDB with Mongoose ODM
-- **Authentication**: JSON Web Tokens (JWT)
+- **Authentication**: JSON Web Tokens (JWT) with httpOnly cookies
+- **File Upload**: Multer for handling image uploads
 - **AI Integration**: Google Generative AI (Gemini 2.0 Flash)
 - **GitHub API**: Repository data fetching and analysis
-- **Security**: bcrypt for password hashing, cookie-parser for session management
+- **Security**: cookie-parser for session management, CORS for cross-origin requests
 
 ## 📋 Prerequisites
 
@@ -49,6 +60,7 @@ Before running this project, make sure you have:
 - MongoDB database
 - GitHub Personal Access Token
 - Google Gemini AI API Key
+- EmailJS account (for contact form)
 
 ## ⚙️ Installation
 
@@ -84,9 +96,19 @@ Before running this project, make sure you have:
    
    # Server
    PORT=3000
+   
+   # CORS (comma-separated list of allowed origins)
+   # For production: ALLOWED_ORIGINS=https://yourdomain.com,https://www.yourdomain.com
+   # For development: Leave empty to use default localhost origins
+   ALLOWED_ORIGINS=http://localhost:5173,http://localhost:5174
    ```
 
-4. **Start the backend server**
+4. **Create uploads directory**
+   ```bash
+   mkdir -p public/uploads/projects
+   ```
+
+5. **Start the backend server**
    ```bash
    npm start
    ```
@@ -103,18 +125,10 @@ Before running this project, make sure you have:
    npm install
    ```
 
-3. **Install animation libraries**
-   ```bash
-   npm install framer-motion gsap @studio-freight/lenis
-   ```
+3. **Add resume file** (optional)
+   Place your resume PDF in `client/public/resume.pdf` for download functionality
 
-4. **Set up Tailwind CSS** (if not already configured)
-   ```bash
-   npm install -D tailwindcss postcss autoprefixer
-   npx tailwindcss init -p
-   ```
-
-5. **Start the development server**
+4. **Start the development server**
    ```bash
    npm run dev
    ```
@@ -147,6 +161,7 @@ The application will be available at:
 | `GITHUB_ACCESS_TOKEN` | GitHub Personal Access Token | ✅ |
 | `GEMINI_API_KEY` | Google Gemini AI API Key | ✅ |
 | `PORT` | Server port (default: 3000) | ❌ |
+| `ALLOWED_ORIGINS` | Comma-separated list of allowed CORS origins (default: localhost) | ❌ |
 
 ## 📚 API Endpoints
 
@@ -170,9 +185,83 @@ Content-Type: application/json
 }
 ```
 
-### Project Routes (`/project`) 🔒 *Protected*
+#### Logout
+```http
+POST /admin/logout
+Authorization: Cookie (Token required)
+```
 
-#### Create Project Manually
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Logout successful."
+}
+```
+
+#### Get Analytics
+```http
+GET /admin/analytics
+Authorization: Cookie (Token required)
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "overview": {
+      "totalVisits": 150,
+      "visitsToday": 10,
+      "visitsThisWeek": 45,
+      "visitsThisMonth": 120,
+      "uniqueVisitorsToday": 8,
+      "uniqueVisitorsThisWeek": 35
+    },
+    "topPages": [...],
+    "popularProjects": [...],
+    "dailyVisits": [...],
+    "recentActivity": [...]
+  }
+}
+```
+
+### Tracking Routes (Public)
+
+#### Track Page Visit
+```http
+POST /admin/track-visit
+Content-Type: application/json
+
+{
+  "page": "/"
+}
+```
+
+#### Track Project View
+```http
+POST /admin/track-project-view
+Content-Type: application/json
+
+{
+  "projectId": "project_id",
+  "projectTitle": "Project Title"
+}
+```
+
+### Project Routes
+
+#### Get All Projects (Public)
+```http
+GET /project
+```
+
+#### Get Single Project (Public)
+```http
+GET /project/:id
+```
+
+#### Create Project (Protected)
 ```http
 POST /project/create
 Authorization: Cookie (Token required)
@@ -184,13 +273,52 @@ Content-Type: application/json
   "description": "Project description",
   "techStack": ["React", "Node.js", "MongoDB"],
   "githubUrl": "https://github.com/username/repo",
-  "liveDemoUrl": "https://demo.com"
+  "liveDemoUrl": "https://demo.com",
+  "imageUrl": "/uploads/projects/image.jpg"
 }
 ```
 
-#### Get Private Repositories
+#### Update Project (Protected)
 ```http
-GET /project/private
+PUT /project/:id
+Authorization: Cookie (Token required)
+Content-Type: application/json
+
+{
+  "title": "Updated Title",
+  ...
+}
+```
+
+#### Delete Project (Protected)
+```http
+DELETE /project/:id
+Authorization: Cookie (Token required)
+```
+
+#### Upload Project Image (Protected)
+```http
+POST /project/upload-image
+Authorization: Cookie (Token required)
+Content-Type: multipart/form-data
+
+{
+  "projectImage": <file>
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Image uploaded successfully",
+  "imageUrl": "/uploads/projects/projectImage-1234567890-123456789.jpg"
+}
+```
+
+#### Get GitHub Repositories (Protected)
+```http
+GET /project/github/repos
 Authorization: Cookie (Token required)
 ```
 
@@ -215,6 +343,7 @@ Content-Type: application/json
    - Domain categorization
    - Compelling description
    - Technology stack identification
+6. Falls back to raw GitHub data if AI quota is exceeded
 
 ## 🧠 AI Integration Features
 
@@ -225,7 +354,7 @@ The `/project/create-from-repo` endpoint uses Google Gemini AI to:
 - **Categorize Projects**: Automatically determines the appropriate domain (Web Development, AI/ML, etc.)
 - **Write Descriptions**: Generates compelling 2-3 sentence project descriptions
 - **Identify Tech Stack**: Recognizes and lists technologies used in the project
-- **Handle Edge Cases**: Robust fallback system if AI processing fails
+- **Handle Edge Cases**: Robust fallback system if AI processing fails or quota is exceeded
 
 ## 📁 Project Structure
 
@@ -235,176 +364,99 @@ Portfolio/
 ├── client/                          # React Frontend
 │   ├── public/
 │   │   ├── index.html
-│   │   └── favicon.ico
+│   │   ├── favicon.ico
+│   │   └── resume.pdf              # Resume file for download
 │   ├── src/
 │   │   ├── components/              # Reusable UI Components
-│   │   │   ├── ui/                  # Base UI components
-│   │   │   ├── animations/          # Animation components
-│   │   │   ├── layout/              # Layout components
-│   │   │   └── forms/               # Form components
-│   │   ├── pages/                   # Page components
-│   │   │   ├── Home.jsx
-│   │   │   ├── Portfolio.jsx
 │   │   │   ├── About.jsx
-│   │   │   └── Admin/
-│   │   │       ├── Dashboard.jsx
-│   │   │       └── ProjectManager.jsx
-│   │   ├── hooks/                   # Custom React hooks
-│   │   │   ├── useAnimation.js
-│   │   │   ├── useScrollTrigger.js
-│   │   │   └── useAuth.js
-│   │   ├── context/                 # React Context
-│   │   │   ├── AuthContext.jsx
-│   │   │   └── ProjectContext.jsx
-│   │   ├── utils/                   # Utility functions
-│   │   │   ├── api.js               # Axios configurations
-│   │   │   ├── animations.js        # GSAP & animation helpers
-│   │   │   └── constants.js
-│   │   ├── styles/                  # Global styles
-│   │   │   ├── globals.css
-│   │   │   └── animations.css
-│   │   ├── App.jsx                  # Main App component
+│   │   │   ├── BackgroundGradient.jsx
+│   │   │   ├── Contact.jsx
+│   │   │   ├── ContactPopup.jsx
+│   │   │   ├── Experience.jsx
+│   │   │   ├── hero.jsx
+│   │   │   ├── Navbar.jsx
+│   │   │   ├── Projects.jsx
+│   │   │   ├── ScrollToTop.jsx
+│   │   │   ├── SEO.jsx
+│   │   │   └── Skills.jsx
+│   │   ├── pages/                   # Page components
+│   │   │   ├── Portfolio.jsx
+│   │   │   ├── AdminLogin.jsx
+│   │   │   └── AdminDashboard.jsx
+│   │   ├── api/                     # API service layer
+│   │   │   └── index.js
+│   │   ├── assets/                  # Static assets
+│   │   │   └── images/
+│   │   ├── App.jsx                  # Main App component with routing
 │   │   └── main.jsx                 # Vite entry point
 │   ├── package.json
-│   ├── vite.config.js              # Vite configuration
-│   ├── tailwind.config.js          # Tailwind CSS config
-│   └── postcss.config.js           # PostCSS config
+│   └── vite.config.js              # Vite configuration
 │
 ├── server/                          # Node.js Backend
 │   ├── controllers/
 │   │   ├── authController.js        # Authentication logic
-│   │   └── projectController.js     # Project management & AI integration
+│   │   ├── projectController.js     # Project management & AI integration
+│   │   └── analyticsController.js   # Analytics and tracking
 │   ├── middlewares/
 │   │   └── isLoggedIn.js           # Authentication middleware
 │   ├── models/
-│   │   └── projectModel.js         # MongoDB project schema
+│   │   ├── projectModel.js         # MongoDB project schema
+│   │   ├── visitModel.js           # Visit tracking schema
+│   │   └── projectViewModel.js    # Project view tracking schema
 │   ├── routes/
-│   │   ├── adminRouter.js          # Authentication routes
+│   │   ├── adminRouter.js          # Authentication and analytics routes
 │   │   └── projectRouter.js        # Project management routes
 │   ├── utils/
-│   │   └── generateToken.js        # JWT token generation
+│   │   ├── generateToken.js        # JWT token generation
+│   │   └── upload.js               # Multer configuration for file uploads
 │   ├── config/
 │   │   └── mongooseConnection.js   # Database connection
+│   ├── public/
+│   │   └── uploads/
+│   │       └── projects/           # Uploaded project images
 │   ├── .env                        # Environment variables
-│   ├── .gitignore                 # Git ignore rules
 │   ├── package.json
 │   └── index.js                    # Server entry point
 │
 └── README.md                        # Project documentation
 ```
 
-## 🎨 Animation Implementation
+## 🎨 Frontend Features
 
-### Framer Motion - Component Animations
-```jsx
-// Page transitions and component animations
-import { motion, AnimatePresence } from 'framer-motion'
-
-const pageVariants = {
-  initial: { opacity: 0, x: '-100vw' },
-  in: { opacity: 1, x: 0 },
-  out: { opacity: 0, x: '100vw' }
-}
-
-const ProjectCard = ({ project }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 50 }}
-    animate={{ opacity: 1, y: 0 }}
-    whileHover={{ scale: 1.05 }}
-    transition={{ duration: 0.3 }}
-    className="bg-white p-6 rounded-lg shadow-lg"
-  >
-    {/* Project content */}
-  </motion.div>
-)
-```
-
-### GSAP - Advanced Timeline Animations
-```javascript
-// ScrollTrigger animations and complex timelines
-import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
-
-gsap.registerPlugin(ScrollTrigger)
-
-// Hero section animation
-const heroTimeline = gsap.timeline()
-heroTimeline
-  .from('.hero-title', { duration: 1, y: 100, opacity: 0 })
-  .from('.hero-subtitle', { duration: 1, y: 50, opacity: 0 }, '-=0.5')
-  .from('.hero-cta', { duration: 1, scale: 0, opacity: 0 }, '-=0.3')
-
-// Scroll-triggered project reveals
-gsap.from('.project-item', {
-  duration: 1,
-  y: 100,
-  opacity: 0,
-  stagger: 0.2,
-  scrollTrigger: {
-    trigger: '.projects-container',
-    start: 'top 80%',
-    end: 'bottom 20%',
-    scrub: 1
-  }
-})
-```
-
-### Lenis - Smooth Scroll Implementation
-```javascript
-// Smooth scroll setup
-import Lenis from '@studio-freight/lenis'
-
-const lenis = new Lenis({
-  duration: 1.2,
-  easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-  direction: 'vertical',
-  gestureDirection: 'vertical',
-  smooth: true,
-  mouseMultiplier: 1,
-  smoothTouch: false,
-  touchMultiplier: 2,
-  infinite: false,
-})
-
-// Animation frame loop
-function raf(time) {
-  lenis.raf(time)
-  requestAnimationFrame(raf)
-}
-requestAnimationFrame(raf)
-
-// Integrate with GSAP ScrollTrigger
-lenis.on('scroll', ScrollTrigger.update)
-```
-
-## 🌊 Frontend Features & Components
-
-### Interactive Portfolio Showcase
-- **Project Grid**: Animated masonry layout with filtering
-- **Project Details**: Modal with smooth transitions
-- **Tech Stack Visualization**: Animated skill indicators
-- **GitHub Integration**: Live repository stats and links
+### Portfolio Page
+- **Hero Section**: Animated hero with resume download button
+- **About Section**: Bio with animated pills and stats
+- **Skills Section**: Animated skill pills with hover effects
+- **Projects Section**: Pinned scroll animation with project cards
+- **Experience Section**: Timeline of work experience
+- **Contact Section**: Interactive contact card with EmailJS integration
+- **Scroll to Top**: Floating button with GSAP animations
 
 ### Admin Dashboard
-- **Secure Login**: JWT-based authentication flow
-- **Project Management**: CRUD operations with real-time updates
-- **Repository Import**: AI-powered project creation from GitHub
-- **Analytics**: Project performance and visitor statistics
-
-### Animation Features
-- **Page Transitions**: Smooth route changes with Framer Motion
-- **Scroll Animations**: GSAP-powered scroll-triggered effects  
-- **Micro-interactions**: Hover effects and loading animations
-- **Parallax Effects**: Multi-layer scrolling backgrounds
-- **Smooth Scrolling**: Lenis-powered buttery smooth navigation
+- **Analytics Tab**: 
+  - Overview statistics cards
+  - Line chart for daily visits (last 30 days)
+  - Bar chart for popular projects
+  - Top pages and recent activity lists
+- **Projects Tab**: 
+  - Full CRUD operations
+  - Image upload with drag & drop
+  - Project form modal
+- **GitHub Import Tab**: 
+  - List of repositories
+  - One-click import with AI analysis
 
 ## 🔒 Authentication Flow
 
 1. **Admin Login**: POST to `/admin/login` with access code
-2. **Token Generation**: Server generates JWT and sets secure cookie
-3. **Protected Routes**: All `/project/*` routes require authentication
+2. **Token Generation**: Server generates JWT and sets httpOnly cookie
+3. **Protected Routes**: All `/project/*` write routes require authentication
 4. **Middleware Validation**: `isLoggedIn` middleware validates JWT tokens
-5. **Session Management**: Tokens expire after 24 hours
+5. **Session Management**: 
+   - Tokens expire after 24 hours
+   - Automatic redirect on 401 errors
+   - Logout clears cookie and redirects to login
+6. **Session Check**: Dashboard checks authentication on mount
 
 ## 💾 Database Schema
 
@@ -417,8 +469,29 @@ lenis.on('scroll', ScrollTrigger.update)
   techStack: [String],
   liveDemoUrl: String,
   githubUrl: String,
+  imageUrl: String,              // Path to uploaded image
   createdAt: Date,
   updatedAt: Date
+}
+```
+
+### Visit Model
+```javascript
+{
+  page: String (required),
+  ipHash: String (required),      // Hashed IP for privacy
+  userAgent: String,
+  timestamp: Date
+}
+```
+
+### ProjectView Model
+```javascript
+{
+  projectId: ObjectId (required),
+  projectTitle: String (required),
+  ipHash: String (required),      // Hashed IP for privacy
+  timestamp: Date
 }
 ```
 
@@ -432,13 +505,34 @@ curl -X POST http://localhost:3000/admin/login \
   -c cookies.txt
 ```
 
-### 2. Get Repository List
+### 2. Upload Project Image
 ```bash
-curl -X GET http://localhost:3000/project/private \
+curl -X POST http://localhost:3000/project/upload-image \
+  -b cookies.txt \
+  -F "projectImage=@/path/to/image.jpg"
+```
+
+### 3. Create Project with Image
+```bash
+curl -X POST http://localhost:3000/project/create \
+  -H "Content-Type: application/json" \
+  -b cookies.txt \
+  -d '{
+    "title": "My Project",
+    "domain": "Web Development",
+    "description": "A cool project",
+    "techStack": ["React", "Node.js"],
+    "imageUrl": "/uploads/projects/image.jpg"
+  }'
+```
+
+### 4. Get Analytics
+```bash
+curl -X GET http://localhost:3000/admin/analytics \
   -b cookies.txt
 ```
 
-### 3. Create Project from Repository (AI-Powered)
+### 5. Create Project from Repository (AI-Powered)
 ```bash
 curl -X POST http://localhost:3000/project/create-from-repo \
   -H "Content-Type: application/json" \
@@ -453,7 +547,27 @@ curl -X POST http://localhost:3000/project/create-from-repo \
 - **Same-Site Cookies**: CSRF protection
 - **Environment Variables**: Sensitive data protection
 - **Input Validation**: Request data validation
+- **File Upload Validation**: Image type and size validation
+- **IP Hashing**: Privacy-focused visitor tracking
 - **Error Handling**: Comprehensive error management
+- **CORS Configuration**: Controlled cross-origin requests
+
+## 📊 Analytics Features
+
+- **Visitor Tracking**: Track page visits with privacy-focused IP hashing
+- **Project Views**: Track which projects are most viewed
+- **Daily Statistics**: View visits over the last 30 days
+- **Popular Content**: Identify top pages and projects
+- **Unique Visitors**: Approximate unique visitor counts
+- **Visual Charts**: Line and bar charts for data visualization
+
+## 🎯 SEO Features
+
+- **Dynamic Meta Tags**: Page-specific titles and descriptions
+- **Open Graph Tags**: Social media sharing optimization
+- **Twitter Cards**: Enhanced Twitter sharing
+- **Canonical URLs**: Prevent duplicate content issues
+- **Dynamic Images**: Project images for social sharing
 
 ## 🤝 Contributing
 
@@ -477,7 +591,9 @@ This project is licensed under the ISC License.
 - GitHub API for repository data access
 - MongoDB for reliable data storage
 - Express.js for robust server framework
+- GSAP for powerful animations
+- Recharts for beautiful data visualizations
 
 ---
 
-*Built with ❤️ using Node.js, MongoDB, and Google AI*
+*Built with ❤️ using Node.js, MongoDB, React, and Google AI*
