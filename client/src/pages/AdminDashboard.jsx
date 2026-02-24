@@ -1,6 +1,17 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from 'recharts'
+import {
   getAnalytics,
   getProjects,
   createProject,
@@ -9,7 +20,9 @@ import {
   fetchGithubRepos,
   createProjectFromRepo,
   uploadImage,
+  adminLogout,
 } from '../api'
+import SEO from '../components/SEO.jsx'
 
 // ── Icons ──────────────────────────────────────────────────────────────────────
 const ChartIcon = () => (
@@ -211,7 +224,7 @@ const ProjectFormModal = ({ project, onSave, onClose }) => {
               <label className="text-white/30 text-[10px] font-light uppercase tracking-[0.14em] block mb-1.5 pl-0.5">
                 Project Image {imagePreview && <span className="text-green-400/60">✓</span>}
               </label>
-              
+
               {imagePreview && (
                 <div className="mb-3 relative group">
                   <div className="rounded-xl overflow-hidden border border-white/10" style={{ maxHeight: '200px' }}>
@@ -235,11 +248,10 @@ const ProjectFormModal = ({ project, onSave, onClose }) => {
                 onDragLeave={handleDrag}
                 onDragOver={handleDrag}
                 onDrop={handleDrop}
-                className={`relative rounded-xl border-2 border-dashed transition-all duration-200 ${
-                  dragActive
+                className={`relative rounded-xl border-2 border-dashed transition-all duration-200 ${dragActive
                     ? 'border-white/40 bg-white/10'
                     : 'border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/[0.07]'
-                } ${uploadingImage ? 'opacity-50 pointer-events-none' : 'cursor-pointer'}`}
+                  } ${uploadingImage ? 'opacity-50 pointer-events-none' : 'cursor-pointer'}`}
               >
                 <input
                   type="file"
@@ -469,12 +481,36 @@ const AdminDashboard = () => {
     }
   }
 
+  // Session check on mount
+  useEffect(() => {
+    const checkSession = async () => {
+      try {
+        await getAnalytics()
+      } catch (err) {
+        if (err.status === 401) {
+          navigate('/admin')
+        }
+      }
+    }
+    checkSession()
+  }, [navigate])
+
   useEffect(() => {
     loadAnalytics()
     loadProjects()
   }, [])
 
   // Handlers
+  const handleLogout = async () => {
+    try {
+      await adminLogout()
+      navigate('/admin')
+    } catch (err) {
+      // Even if logout fails, redirect to login
+      navigate('/admin')
+    }
+  }
+
   const handleSaveProject = async (data) => {
     if (editingProject) {
       await updateProject(editingProject._id, data)
@@ -505,6 +541,10 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#000' }}>
+      <SEO
+        title="Admin Dashboard | Lightnos.dev"
+        description="Admin dashboard for managing portfolio projects and analytics"
+      />
       {/* Background glow */}
       <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 0 }}>
         <div className="absolute w-[500px] h-[500px] rounded-full opacity-8"
@@ -522,9 +562,17 @@ const AdminDashboard = () => {
           </a>
           <span className="text-white/20 text-xs">/ admin</span>
         </div>
-        <a href="/" className="text-white/40 text-sm font-light hover:text-white/70 transition-colors">
-          ← Back to site
-        </a>
+        <div className="flex items-center gap-4">
+          <a href="/" className="text-white/40 text-sm font-light hover:text-white/70 transition-colors">
+            ← Back to site
+          </a>
+          <button
+            onClick={handleLogout}
+            className="px-4 py-2 rounded-xl text-sm font-light text-white/60 hover:text-white hover:bg-white/5 border border-white/10 transition-all duration-200"
+            style={{ letterSpacing: '-0.01em' }}>
+            Logout
+          </button>
+        </div>
       </header>
 
       <div className="relative z-10 flex flex-col lg:flex-row min-h-[calc(100vh-57px)]">
@@ -612,24 +660,77 @@ const AdminDashboard = () => {
                     </div>
                   )}
 
-                  {/* Daily Chart (simple bar) */}
+                  {/* Daily Visits Line Chart */}
                   {analytics.dailyVisits.length > 0 && (
                     <div>
-                      <h3 className="text-white/50 text-xs font-light uppercase tracking-[0.16em] mb-4">Last 30 Days</h3>
-                      <div className="flex items-end gap-1 h-32 px-4 py-3 rounded-xl"
-                        style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
-                        {analytics.dailyVisits.map((day, i) => {
-                          const max = Math.max(...analytics.dailyVisits.map(d => d.visits), 1)
-                          const h = (day.visits / max) * 100
-                          return (
-                            <div key={i} className="flex-1 rounded-t" title={`${day.date}: ${day.visits}`}
-                              style={{
-                                height: `${Math.max(h, 4)}%`,
-                                background: 'linear-gradient(to top, rgba(139,92,246,0.6), rgba(147,197,253,0.4))',
-                                minWidth: 3,
-                              }} />
-                          )
-                        })}
+                      <h3 className="text-white/50 text-xs font-light uppercase tracking-[0.16em] mb-4">Daily Visits (Last 30 Days)</h3>
+                      <div className="rounded-2xl p-4" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
+                        <ResponsiveContainer width="100%" height={250}>
+                          <LineChart data={analytics.dailyVisits}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                            <XAxis
+                              dataKey="date"
+                              stroke="rgba(255,255,255,0.3)"
+                              style={{ fontSize: '11px' }}
+                              tickFormatter={(value) => {
+                                const date = new Date(value)
+                                return `${date.getMonth() + 1}/${date.getDate()}`
+                              }}
+                            />
+                            <YAxis stroke="rgba(255,255,255,0.3)" style={{ fontSize: '11px' }} />
+                            <Tooltip
+                              contentStyle={{
+                                backgroundColor: 'rgba(0,0,0,0.9)',
+                                border: '1px solid rgba(255,255,255,0.1)',
+                                borderRadius: '8px',
+                                color: '#fff',
+                              }}
+                              labelStyle={{ color: 'rgba(255,255,255,0.6)' }}
+                            />
+                            <Line
+                              type="monotone"
+                              dataKey="visits"
+                              stroke="rgba(139,92,246,0.8)"
+                              strokeWidth={2}
+                              dot={{ fill: 'rgba(139,92,246,0.6)', r: 3 }}
+                              activeDot={{ r: 5 }}
+                            />
+                          </LineChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Popular Projects Bar Chart */}
+                  {analytics.popularProjects.length > 0 && (
+                    <div>
+                      <h3 className="text-white/50 text-xs font-light uppercase tracking-[0.16em] mb-4">Popular Projects</h3>
+                      <div className="rounded-2xl p-4" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
+                        <ResponsiveContainer width="100%" height={300}>
+                          <BarChart
+                            data={analytics.popularProjects.slice(0, 10).map(p => ({ name: p.title.length > 20 ? p.title.substring(0, 20) + '...' : p.title, views: p.views }))}
+                            layout="vertical"
+                          >
+                            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                            <XAxis type="number" stroke="rgba(255,255,255,0.3)" style={{ fontSize: '11px' }} />
+                            <YAxis
+                              type="category"
+                              dataKey="name"
+                              stroke="rgba(255,255,255,0.3)"
+                              style={{ fontSize: '11px' }}
+                              width={120}
+                            />
+                            <Tooltip
+                              contentStyle={{
+                                backgroundColor: 'rgba(0,0,0,0.9)',
+                                border: '1px solid rgba(255,255,255,0.1)',
+                                borderRadius: '8px',
+                                color: '#fff',
+                              }}
+                            />
+                            <Bar dataKey="views" fill="rgba(147,197,253,0.6)" radius={[0, 4, 4, 0]} />
+                          </BarChart>
+                        </ResponsiveContainer>
                       </div>
                     </div>
                   )}

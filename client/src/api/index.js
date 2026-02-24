@@ -47,6 +47,11 @@ export const adminLogin = (code) =>
         body: JSON.stringify({ code }),
     })
 
+export const adminLogout = () =>
+    request('/admin/logout', {
+        method: 'POST',
+    })
+
 export const getAnalytics = () => request('/admin/analytics')
 
 export const createProject = (projectData) =>

@@ -42,3 +42,23 @@ module.exports.login = async function (req, res) {
         });
     }
 };
+
+module.exports.logout = async function (req, res) {
+    try {
+        res.clearCookie("Token", {
+            httpOnly: true,
+            sameSite: "strict",
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: "Logout successful.",
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: "Error logging out",
+            error: error.message,
+        });
+    }
+};

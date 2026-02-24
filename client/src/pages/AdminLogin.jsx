@@ -1,12 +1,26 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { adminLogin } from '../api'
+import { adminLogin, getAnalytics } from '../api'
+import SEO from '../components/SEO.jsx'
 
 const AdminLogin = () => {
   const [code, setCode] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
+
+  // Check if already logged in
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        await getAnalytics()
+        navigate('/admin/dashboard')
+      } catch (err) {
+        // Not logged in, stay on login page
+      }
+    }
+    checkAuth()
+  }, [navigate])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -25,6 +39,10 @@ const AdminLogin = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4" style={{ backgroundColor: '#000' }}>
+      <SEO
+        title="Admin Login | Lightnos.dev"
+        description="Admin access to Lightnos.dev portfolio dashboard"
+      />
       {/* Background glow */}
       <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 0 }}>
         <div className="absolute w-[400px] h-[400px] rounded-full opacity-15"

@@ -11,6 +11,8 @@ import Projects from '../components/Projects.jsx'
 import Skills from '../components/Skills.jsx'
 import Experience from '../components/Experience.jsx'
 import Contact from '../components/Contact.jsx'
+import ScrollToTop from '../components/ScrollToTop.jsx'
+import SEO from '../components/SEO.jsx'
 import { trackVisit } from '../api'
 
 gsap.registerPlugin(ScrollTrigger)
@@ -47,6 +49,10 @@ function Portfolio() {
 
   return (
     <div className="relative min-h-screen" style={{ backgroundColor: '#000000', overflowX: 'hidden' }}>
+      <SEO
+        title="Lightnos.dev — Udit Agrawal | Full Stack Developer"
+        description="Full-stack developer and MERN Stack specialist with over 3 years of experience. Building scalable systems and shipping products that move fast."
+      />
 
       <BackgroundGradient />
 
@@ -84,6 +90,8 @@ function Portfolio() {
       <Projects />
       <Experience />
       <Contact />
+
+      <ScrollToTop />
 
     </div>
   )

@@ -124,15 +124,19 @@ const Hero = () => {
           ref={ctaRef}
           className="flex flex-wrap items-center justify-center gap-2 sm:gap-4 mb-6 sm:mb-10"
         >
-          {/* Full Stack badge with glow — overflow-hidden fully contains the blur */}
+          {/* Resume badge with glow — overflow-hidden fully contains the blur */}
           <div className="relative inline-flex items-center justify-center rounded-full overflow-hidden">
             <div
               ref={spotlightRef}
               className="absolute inset-0 rounded-full bg-[#72A9CF]/50 blur-sm"
             />
-            <button className="relative inline-flex items-center justify-center px-4 sm:px-6 py-1.5 sm:py-3 rounded-full bg-black/80 border border-[#72A9CF]/50 text-white font-medium text-[11px] sm:text-sm transition-all duration-300 hover:bg-black">
-              Full Stack
-            </button>
+            <a
+              href="/resume.pdf"
+              download="Udit_Agrawal_Resume.pdf"
+              className="relative inline-flex items-center justify-center px-4 sm:px-6 py-1.5 sm:py-3 rounded-full bg-black/80 border border-[#72A9CF]/50 text-white font-medium text-[11px] sm:text-sm transition-all duration-300 hover:bg-black cursor-pointer"
+            >
+              Resume
+            </a>
           </div>
 
           {/* Problem Solver badge */}

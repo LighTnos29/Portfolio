@@ -1,5 +1,5 @@
 const express = require('express')
-const { login } = require('../controllers/authController')
+const { login, logout } = require('../controllers/authController')
 const { getAnalytics, trackProjectView, trackPageVisit } = require('../controllers/analyticsController')
 const isLoggedIn = require('../middlewares/isLoggedIn')
 const router = express.Router()
@@ -12,6 +12,7 @@ router.post('/track-visit', trackPageVisit)
 router.post('/track-project-view', trackProjectView)
 
 // Protected admin routes
+router.post('/logout', isLoggedIn, logout)
 router.get('/analytics', isLoggedIn, getAnalytics)
 
 module.exports = router
