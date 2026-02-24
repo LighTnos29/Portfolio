@@ -15,8 +15,43 @@ async function request(endpoint, options = {}) {
         ...options,
     }
 
-    const response = await fetch(url, config)
-    const data = await response.json()
+    let response
+    try {
+        response = await fetch(url, config)
+    } catch (error) {
+        // Network error (CORS, connection failed, etc.)
+        throw { 
+            status: 0, 
+            message: 'Network error: Unable to connect to server. Please check your connection and API URL.',
+            error: error.message 
+        }
+    }
+
+    // Check if response has content before parsing JSON
+    const contentType = response.headers.get('content-type')
+    const hasJsonContent = contentType && contentType.includes('application/json')
+    
+    let data
+    if (hasJsonContent) {
+        try {
+            const text = await response.text()
+            data = text ? JSON.parse(text) : {}
+        } catch (parseError) {
+            throw {
+                status: response.status,
+                message: 'Invalid response from server',
+                error: 'Failed to parse JSON response'
+            }
+        }
+    } else {
+        // Response is not JSON (might be HTML error page)
+        const text = await response.text()
+        throw {
+            status: response.status,
+            message: `Server returned ${response.status} ${response.statusText}`,
+            error: text.substring(0, 100) // First 100 chars of response
+        }
+    }
 
     if (!response.ok) {
         throw { status: response.status, ...data }
@@ -88,13 +123,44 @@ export const uploadImage = async (file) => {
     formData.append('image', file)
 
     const url = `${API_BASE}/project/upload-image`
-    const response = await fetch(url, {
-        method: 'POST',
-        credentials: 'include',
-        body: formData,
-    })
+    let response
+    try {
+        response = await fetch(url, {
+            method: 'POST',
+            credentials: 'include',
+            body: formData,
+        })
+    } catch (error) {
+        throw { 
+            status: 0, 
+            message: 'Network error: Unable to upload image',
+            error: error.message 
+        }
+    }
 
-    const data = await response.json()
+    const contentType = response.headers.get('content-type')
+    const hasJsonContent = contentType && contentType.includes('application/json')
+    
+    let data
+    if (hasJsonContent) {
+        try {
+            const text = await response.text()
+            data = text ? JSON.parse(text) : {}
+        } catch (parseError) {
+            throw {
+                status: response.status,
+                message: 'Invalid response from server',
+                error: 'Failed to parse JSON response'
+            }
+        }
+    } else {
+        const text = await response.text()
+        throw {
+            status: response.status,
+            message: `Server returned ${response.status} ${response.statusText}`,
+            error: text.substring(0, 100)
+        }
+    }
 
     if (!response.ok) {
         throw { status: response.status, ...data }
