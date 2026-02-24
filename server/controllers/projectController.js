@@ -233,13 +233,18 @@ module.exports.createProjectFromRepo = async (req, res) => {
             readmeContent = 'No README available';
         }
 
-        const languagesResponse = await axios.get(`https://api.github.com/repos/${owner}/${repoName}/languages`, {
-            headers: {
-                'Authorization': `Bearer ${process.env.GITHUB_ACCESS_TOKEN}`,
-            }
-        });
-
-        const languages = Object.keys(languagesResponse.data);
+        let languages = [];
+        try {
+            const languagesResponse = await axios.get(`https://api.github.com/repos/${owner}/${repoName}/languages`, {
+                headers: {
+                    'Authorization': `Bearer ${process.env.GITHUB_ACCESS_TOKEN}`,
+                }
+            });
+            languages = Object.keys(languagesResponse.data || {});
+        } catch (languagesError) {
+            console.log('Error fetching languages, continuing without them:', languagesError.message);
+            languages = [];
+        }
 
         // Try AI-powered description, fall back to raw GitHub data
         let projectData;
@@ -303,12 +308,27 @@ module.exports.createProjectFromRepo = async (req, res) => {
             };
         }
 
+        // Validate required fields before creating project
+        if (!projectData.title || !projectData.domain) {
+            console.error('Missing required fields:', { title: projectData.title, domain: projectData.domain });
+            return res.status(400).json({
+                success: false,
+                message: "Failed to generate project data. Missing required fields.",
+                error: "Title or domain is missing"
+            });
+        }
+
+        // Ensure techStack is an array
+        if (!Array.isArray(projectData.techStack)) {
+            projectData.techStack = projectData.techStack ? [projectData.techStack] : ['Unknown'];
+        }
+
         const project = await projectModel.create({
-            title: projectData.title,
-            domain: projectData.domain,
-            description: projectData.description,
+            title: projectData.title.trim(),
+            domain: projectData.domain.trim(),
+            description: (projectData.description || '').trim(),
             techStack: projectData.techStack,
-            githubUrl: repoData.html_url,
+            githubUrl: repoData.html_url || '',
             liveDemoUrl: repoData.homepage || ''
         });
 
@@ -320,6 +340,7 @@ module.exports.createProjectFromRepo = async (req, res) => {
 
     } catch (error) {
         console.error('Error creating project from repo:', error);
+        console.error('Error stack:', error.stack);
 
         // Handle specific error types
         if (error.response) {
