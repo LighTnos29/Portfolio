@@ -61,7 +61,6 @@ console.log('📦 Database name:', DB_NAME)
 
 // Disable buffering - fail fast if not connected
 mongoose.set('bufferCommands', false)
-mongoose.set('bufferMaxEntries', 0)
 
 // Connection options for reliability
 const connectionOptions = {
