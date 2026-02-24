@@ -32,11 +32,16 @@ async function request(endpoint, options = {}) {
         response = await fetch(url, config)
     } catch (error) {
         // Network error (CORS, connection failed, etc.)
-        throw {
+        const errorDetails = {
             status: 0,
             message: 'Network error: Unable to connect to server. Please check your connection and API URL.',
-            error: error.message
+            error: error.message,
+            url: url,
+            apiBase: API_BASE,
+            isProduction: import.meta.env.PROD
         }
+        console.error('API Request Failed:', errorDetails)
+        throw errorDetails
     }
 
     // Check if response has content before parsing JSON
