@@ -1,15 +1,17 @@
 const express = require('express')
 const { login } = require('../controllers/authController')
-const { getAnalytics, trackProjectView } = require('../controllers/analyticsController')
+const { getAnalytics, trackProjectView, trackPageVisit } = require('../controllers/analyticsController')
 const isLoggedIn = require('../middlewares/isLoggedIn')
-const trackVisit = require('../middlewares/trackVisit')
 const router = express.Router()
 
-// Public admin routes (no tracking)
+// Public admin routes
 router.post('/login', login)
 
-// Protected admin routes (with visit tracking)
-router.get('/analytics', isLoggedIn, trackVisit, getAnalytics)
-router.post('/track-project-view', isLoggedIn, trackProjectView)
+// Public tracking routes (no auth needed — called from portfolio frontend)
+router.post('/track-visit', trackPageVisit)
+router.post('/track-project-view', trackProjectView)
+
+// Protected admin routes
+router.get('/analytics', isLoggedIn, getAnalytics)
 
 module.exports = router

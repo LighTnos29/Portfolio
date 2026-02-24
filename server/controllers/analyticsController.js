@@ -4,9 +4,10 @@ const crypto = require('crypto');
 
 // Helper function to hash IP for privacy
 const hashIP = (ip) => {
-    return crypto.createHash('sha256').update(ip + process.env.JWT_SECRET).digest('hex').slice(0, 16);
+    return crypto.createHash('sha256').update(ip + (process.env.JWT_SECRET || 'fallback')).digest('hex').slice(0, 16);
 };
-// Get comprehensive analytics data
+
+// Get comprehensive analytics data (admin only)
 module.exports.getAnalytics = async (req, res) => {
     try {
         const now = new Date();
@@ -132,11 +133,39 @@ module.exports.getAnalytics = async (req, res) => {
         });
     }
 };
-// Track project view
+
+// Track page visit (public — called from portfolio frontend)
+module.exports.trackPageVisit = async (req, res) => {
+    try {
+        const { page } = req.body;
+        const clientIP = req.ip || req.connection?.remoteAddress || '127.0.0.1';
+        const ipHash = hashIP(clientIP);
+        const userAgent = req.get('User-Agent') || 'Unknown';
+
+        await Visit.create({
+            page: page || '/',
+            ipHash,
+            userAgent
+        });
+
+        res.status(200).json({
+            success: true,
+            message: "Visit tracked"
+        });
+    } catch (error) {
+        console.error('Error tracking visit:', error);
+        res.status(500).json({
+            success: false,
+            message: "Error tracking visit"
+        });
+    }
+};
+
+// Track project view (public)
 module.exports.trackProjectView = async (req, res) => {
     try {
         const { projectId, projectTitle } = req.body;
-        const clientIP = req.ip || req.connection.remoteAddress || '127.0.0.1';
+        const clientIP = req.ip || req.connection?.remoteAddress || '127.0.0.1';
         const ipHash = hashIP(clientIP);
 
         await ProjectView.create({
@@ -159,4 +188,4 @@ module.exports.trackProjectView = async (req, res) => {
     }
 };
 
-module.exports.hashIP = hashIP; // Export for use in middleware
+module.exports.hashIP = hashIP;

@@ -1,12 +1,20 @@
 import React, { useRef, useEffect, useState } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-
-import ctfImg from '../assets/images/ctf.jpg'
+import { getProjects, trackProjectView } from '../api'
 
 gsap.registerPlugin(ScrollTrigger)
 
 const NAV_H = 72
+
+// Gradient presets for project cards
+const GRADIENTS = [
+  'linear-gradient(135deg, rgba(56,139,253,0.15) 0%, rgba(139,92,246,0.12) 60%, rgba(10,211,245,0.08) 100%), rgb(6,8,13)',
+  'linear-gradient(135deg, rgba(16,185,129,0.15) 0%, rgba(6,182,212,0.12) 60%, rgba(99,102,241,0.08) 100%), rgb(6,8,13)',
+  'linear-gradient(135deg, rgba(245,158,11,0.14) 0%, rgba(244,63,94,0.11) 60%, rgba(139,92,246,0.08) 100%), rgb(6,8,13)',
+  'linear-gradient(135deg, rgba(139,92,246,0.15) 0%, rgba(56,139,253,0.12) 60%, rgba(16,185,129,0.08) 100%), rgb(6,8,13)',
+  'linear-gradient(135deg, rgba(244,63,94,0.15) 0%, rgba(245,158,11,0.12) 60%, rgba(56,139,253,0.08) 100%), rgb(6,8,13)',
+]
 
 // ── Icons ─────────────────────────────────────────────────────────────────────
 const GithubIcon = () => (
@@ -21,72 +29,41 @@ const ExternalIcon = () => (
   </svg>
 )
 
-// ── Project data ──────────────────────────────────────────────────────────────
-const PROJECTS = [
-  {
-    _id: '1',
-    title: 'Modernizing a Subscription Management Platform',
-    domain: 'Full Stack Web',
-    description: 'With a user-centered approach, the goal was to create an intuitive interface for effortless financial management while incorporating gamification.',
-    techStack: ['React', 'Node.js', 'MongoDB', 'Tailwind'],
-    liveDemoUrl: '#',
-    githubUrl: 'https://github.com/LighTnos29',
-    image: ctfImg,
-    gradient: 'linear-gradient(135deg, rgba(56,139,253,0.15) 0%, rgba(139,92,246,0.12) 60%, rgba(10,211,245,0.08) 100%), rgb(6,8,13)',
-  },
-  {
-    _id: '2',
-    title: 'Building a Real-Time Collaborative Dev Tool',
-    domain: 'MERN Stack',
-    description: 'Designed and engineered a live coding environment with presence indicators, conflict-free merging, and instant preview — built on the MERN stack.',
-    techStack: ['React', 'Express', 'Socket.io', 'MongoDB'],
-    liveDemoUrl: '#',
-    githubUrl: 'https://github.com/LighTnos29',
-    image: ctfImg,
-    gradient: 'linear-gradient(135deg, rgba(16,185,129,0.15) 0%, rgba(6,182,212,0.12) 60%, rgba(99,102,241,0.08) 100%), rgb(6,8,13)',
-  },
-  {
-    _id: '3',
-    title: 'E-Commerce Platform with AI Recommendations',
-    domain: 'Full Stack + AI',
-    description: 'Full-stack storefront powered by a Python recommendation engine, featuring real-time inventory, Stripe checkout, and a headless CMS.',
-    techStack: ['Next.js', 'Python', 'Stripe', 'PostgreSQL'],
-    liveDemoUrl: '#',
-    githubUrl: 'https://github.com/LighTnos29',
-    image: ctfImg,
-    gradient: 'linear-gradient(135deg, rgba(245,158,11,0.14) 0%, rgba(244,63,94,0.11) 60%, rgba(139,92,246,0.08) 100%), rgb(6,8,13)',
-  },
-]
-
 // ── Card UI ───────────────────────────────────────────────────────────────────
-const CardContent = ({ project, isMobile }) => (
+const CardContent = ({ project, isMobile, onProjectClick }) => (
   <div
     className="group relative w-full h-full rounded-2xl overflow-hidden border border-white/10"
     style={{ background: project.gradient }}
   >
     {isMobile ? (
-      /* ── Mobile layout: image top, text below ── */
+      /* ── Mobile layout: stacked ── */
       <div className="flex flex-col h-full">
-        {/* Image — fixed px height so text always has room */}
-        <div className="relative w-full shrink-0 overflow-hidden" style={{ height: '180px' }}>
-          {project.image ? (
+        {/* Image or decorative header area */}
+        <div className="relative w-full shrink-0 overflow-hidden" style={{ height: '140px' }}>
+          {project.imageUrl ? (
             <>
               <img
-                src={project.image}
+                src={project.imageUrl.startsWith('http') ? project.imageUrl : `http://localhost:3000${project.imageUrl}`}
                 alt={project.title}
-                className="absolute inset-0 w-full h-full object-cover object-center"
+                className="absolute inset-0 w-full h-full object-cover"
               />
               <div className="absolute inset-0 bg-black/20 pointer-events-none" />
               <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-[rgb(6,8,13)] to-transparent pointer-events-none" />
             </>
           ) : (
-            <div className="absolute inset-0 flex items-center justify-center bg-white/[0.02]">
-              <span className="text-white/20 text-xs uppercase tracking-widest">No image</span>
-            </div>
+            <>
+              <div className="absolute inset-0 bg-white/[0.02]" />
+              <div className="relative z-10 flex items-center justify-center h-full text-center px-4">
+                <span className="text-4xl font-bold text-white/[0.06]" style={{ letterSpacing: '-0.05em' }}>
+                  {project.title.split(' ').slice(0, 2).join(' ')}
+                </span>
+              </div>
+              <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-[rgb(6,8,13)] to-transparent pointer-events-none" />
+            </>
           )}
         </div>
 
-        {/* Text — scrollable so nothing gets clipped */}
+        {/* Text */}
         <div className="flex flex-col flex-1 px-4 py-3 gap-2 overflow-y-auto">
           {project.domain && (
             <span className="inline-block self-start px-2.5 py-0.5 rounded-full text-[9px] font-medium uppercase tracking-widest bg-white/5 border border-white/10 text-white/50">
@@ -104,22 +81,14 @@ const CardContent = ({ project, isMobile }) => (
           </div>
           <div className="flex flex-wrap gap-2 pt-1">
             {project.liveDemoUrl && (
-              <a
-                href={project.liveDemoUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full border border-white/20 bg-white/5 text-white/80 text-[11px] font-medium transition-all duration-300 hover:bg-white/10 hover:text-white"
-              >
+              <a href={project.liveDemoUrl} target="_blank" rel="noopener noreferrer" onClick={() => onProjectClick?.(project)}
+                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full border border-white/20 bg-white/5 text-white/80 text-[11px] font-medium transition-all duration-300 hover:bg-white/10 hover:text-white">
                 Live Demo <ExternalIcon />
               </a>
             )}
             {project.githubUrl && (
-              <a
-                href={project.githubUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full border border-white/10 text-white/50 text-[11px] font-medium transition-all duration-300 hover:bg-white/5 hover:text-white/80"
-              >
+              <a href={project.githubUrl} target="_blank" rel="noopener noreferrer" onClick={() => onProjectClick?.(project)}
+                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full border border-white/10 text-white/50 text-[11px] font-medium transition-all duration-300 hover:bg-white/5 hover:text-white/80">
                 <GithubIcon /> GitHub
               </a>
             )}
@@ -127,10 +96,10 @@ const CardContent = ({ project, isMobile }) => (
         </div>
       </div>
     ) : (
-      /* ── Desktop layout: text left, image right ── */
+      /* ── Desktop layout: text left, decorative right ── */
       <div className="flex flex-row h-full">
         {/* Left text */}
-        <div className="flex flex-col justify-center w-[50%] shrink-0 px-8 xl:px-12 py-8 xl:py-10 space-y-4 xl:space-y-5 overflow-hidden">
+        <div className="flex flex-col justify-center w-[55%] shrink-0 px-8 xl:px-12 py-8 xl:py-10 space-y-4 xl:space-y-5 overflow-hidden">
           {project.domain && (
             <span className="inline-block self-start px-3 py-1 rounded-full text-[11px] font-medium uppercase tracking-widest bg-white/5 border border-white/10 text-white/50">
               {project.domain}
@@ -147,34 +116,26 @@ const CardContent = ({ project, isMobile }) => (
           </div>
           <div className="flex flex-wrap gap-3 pt-1">
             {project.liveDemoUrl && (
-              <a
-                href={project.liveDemoUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-white/20 bg-white/5 text-white/80 text-sm font-medium transition-all duration-300 hover:bg-white/10 hover:border-white/40 hover:text-white"
-              >
+              <a href={project.liveDemoUrl} target="_blank" rel="noopener noreferrer" onClick={() => onProjectClick?.(project)}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-white/20 bg-white/5 text-white/80 text-sm font-medium transition-all duration-300 hover:bg-white/10 hover:border-white/40 hover:text-white">
                 Live Demo <ExternalIcon />
               </a>
             )}
             {project.githubUrl && (
-              <a
-                href={project.githubUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-white/10 text-white/50 text-sm font-medium transition-all duration-300 hover:bg-white/5 hover:border-white/20 hover:text-white/80"
-              >
+              <a href={project.githubUrl} target="_blank" rel="noopener noreferrer" onClick={() => onProjectClick?.(project)}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-white/10 text-white/50 text-sm font-medium transition-all duration-300 hover:bg-white/5 hover:border-white/20 hover:text-white/80">
                 <GithubIcon /> GitHub
               </a>
             )}
           </div>
         </div>
 
-        {/* Right image */}
+        {/* Right image or decorative area */}
         <div className="flex-1 relative border-l border-white/10 overflow-hidden">
-          {project.image ? (
+          {project.imageUrl ? (
             <>
               <img
-                src={project.image}
+                src={project.imageUrl.startsWith('http') ? project.imageUrl : `http://localhost:3000${project.imageUrl}`}
                 alt={project.title}
                 className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-[1.03]"
               />
@@ -182,8 +143,13 @@ const CardContent = ({ project, isMobile }) => (
               <div className="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-black/30 to-transparent pointer-events-none" />
             </>
           ) : (
-            <div className="absolute inset-0 flex items-center justify-center bg-white/[0.02]">
-              <span className="text-white/20 text-xs uppercase tracking-widest">No image</span>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="absolute inset-0 bg-white/[0.01]" />
+              <div className="relative text-center px-6">
+                <span className="text-6xl xl:text-7xl font-bold text-white/[0.04]" style={{ letterSpacing: '-0.05em' }}>
+                  {project.title.split(' ').slice(0, 2).join(' ')}
+                </span>
+              </div>
             </div>
           )}
         </div>
@@ -198,6 +164,28 @@ const Projects = () => {
   const headingRef = useRef(null)
   const cardRefs = useRef([])
   const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768)
+  const [projects, setProjects] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  // Fetch projects from API
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const data = await getProjects()
+        const projectsWithGradients = (data.projects || []).map((p, i) => ({
+          ...p,
+          gradient: GRADIENTS[i % GRADIENTS.length],
+        }))
+        setProjects(projectsWithGradients)
+      } catch (error) {
+        console.error('Error fetching projects:', error)
+        setProjects([])
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchProjects()
+  }, [])
 
   useEffect(() => {
     const onResize = () => setIsMobile(window.innerWidth < 768)
@@ -205,7 +193,10 @@ const Projects = () => {
     return () => window.removeEventListener('resize', onResize)
   }, [])
 
+  // Setup scroll animations once projects are loaded
   useEffect(() => {
+    if (loading || projects.length === 0) return
+
     const ctx = gsap.context(() => {
       gsap.fromTo(
         headingRef.current,
@@ -222,6 +213,8 @@ const Projects = () => {
 
       const cards = cardRefs.current.filter(Boolean)
       const total = cards.length
+      if (total <= 1) return
+
       const sectionH = sectionRef.current?.offsetHeight || window.innerHeight
       const vh = sectionH
 
@@ -250,7 +243,42 @@ const Projects = () => {
     }, sectionRef)
 
     return () => ctx.revert()
-  }, [])
+  }, [loading, projects])
+
+  // Track project view when clicking external links
+  const handleProjectClick = (project) => {
+    trackProjectView(project._id, project.title).catch(() => {})
+  }
+
+  if (loading) {
+    return (
+      <div id="projects" className="relative w-full px-5 sm:px-8 lg:px-16 py-20 sm:py-28 lg:py-36" style={{ zIndex: 10 }}>
+        <div className="w-full max-w-5xl mx-auto">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-medium text-white mb-10 sm:mb-14" style={{ letterSpacing: '-0.03em' }}>
+            Projects that <span className="text-white/40">ship.</span>
+          </h2>
+          <div className="flex flex-col gap-6">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="w-full h-48 sm:h-64 rounded-2xl border border-white/10 animate-pulse" style={{ background: 'rgba(255,255,255,0.03)' }} />
+            ))}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (projects.length === 0) {
+    return (
+      <div id="projects" className="relative w-full px-5 sm:px-8 lg:px-16 py-20 sm:py-28 lg:py-36" style={{ zIndex: 10 }}>
+        <div className="w-full max-w-5xl mx-auto text-center">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-medium text-white mb-10 sm:mb-14" style={{ letterSpacing: '-0.03em' }}>
+            Projects that <span className="text-white/40">ship.</span>
+          </h2>
+          <p className="text-white/40 text-sm">Projects coming soon...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <>
@@ -267,11 +295,11 @@ const Projects = () => {
 
       {/* Pinned stack */}
       <section
-        id="work"
+        id="projects"
         ref={sectionRef}
         style={{ position: 'relative', width: '100%', height: isMobile ? '85vh' : '100vh', overflow: 'hidden', zIndex: 10 }}
       >
-        {PROJECTS.map((project, i) => (
+        {projects.map((project, i) => (
           <div
             key={project._id}
             ref={(el) => (cardRefs.current[i] = el)}
@@ -288,7 +316,7 @@ const Projects = () => {
               willChange: 'transform, opacity',
             }}
           >
-            <CardContent project={project} isMobile={isMobile} />
+            <CardContent project={project} isMobile={isMobile} onProjectClick={handleProjectClick} />
           </div>
         ))}
       </section>

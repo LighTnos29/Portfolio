@@ -1,1 +1,0 @@
-const fs = require(" fs\); const content = fs.readFileSync(\Hero.jsx\, \utf8\); const updated = content.replace(/src=\\/src\/assets\/images\/\/g, \src=\\\/src/assets/images/React-icon.svg.png\\\\); fs.writeFileSync(\Hero.jsx\, updated);

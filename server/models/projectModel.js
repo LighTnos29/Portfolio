@@ -26,6 +26,10 @@ const projectSchema = new mongoose.Schema({
     githubUrl: { 
         type: String,
         trim: true
+    },
+    imageUrl: {
+        type: String,
+        trim: true
     }
 }, {
     timestamps: true
