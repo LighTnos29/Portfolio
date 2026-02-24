@@ -158,7 +158,7 @@ export const uploadImage = async (file) => {
     // Ensure proper URL construction
     const cleanBase = API_BASE.endsWith('/') ? API_BASE.slice(0, -1) : API_BASE
     const url = `${cleanBase}/project/upload-image`
-    
+
     let response
     try {
         response = await fetch(url, {
