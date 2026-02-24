@@ -3,6 +3,11 @@
 // Example: https://portfolio-qpkw.onrender.com (not https://portfolio-qpkw.onrender.com/api)
 const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api'
 
+// Warn if API_BASE is not set in production
+if (import.meta.env.PROD && API_BASE === '/api') {
+    console.error('⚠️ VITE_API_BASE_URL is not set! Requests will fail. Set it in Vercel environment variables.')
+}
+
 // Backend base URL for serving static files (images)
 export const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000'
 
@@ -61,6 +66,17 @@ async function request(endpoint, options = {}) {
     }
 
     if (!response.ok) {
+        // Special handling for 405 errors (common when API_BASE is wrong)
+        if (response.status === 405) {
+            const errorMsg = API_BASE === '/api' && import.meta.env.PROD
+                ? 'Method not allowed. VITE_API_BASE_URL is not set in Vercel. Please configure it in Vercel environment variables.'
+                : `Method not allowed (405). Check if the API URL is correct. Current API_BASE: ${API_BASE}`
+            throw {
+                status: response.status,
+                message: errorMsg,
+                ...data
+            }
+        }
         throw { status: response.status, ...data }
     }
 
