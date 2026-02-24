@@ -1,4 +1,5 @@
 const projectModel = require('../models/projectModel')
+const mongoose = require('mongoose')
 const axios = require('axios')
 const { GoogleGenerativeAI } = require('@google/generative-ai')
 const path = require('path')
@@ -6,16 +7,26 @@ const path = require('path')
 // Get all projects (public)
 module.exports.getAllProjects = async (req, res) => {
     try {
+        // Check if MongoDB is connected
+        if (mongoose.connection.readyState !== 1) {
+            return res.status(503).json({
+                success: false,
+                message: "Database connection not available",
+                error: "MongoDB is not connected"
+            });
+        }
         const projects = await projectModel.find().sort({ createdAt: -1 })
         res.status(200).json({
             success: true,
             projects
         })
     } catch (error) {
+        console.error('Error fetching projects:', error);
+        console.error('Error stack:', error.stack);
         res.status(500).json({
             success: false,
             message: "Error fetching projects",
-            error: error.message
+            error: process.env.NODE_ENV === 'production' ? 'Internal server error' : error.message
         })
     }
 }

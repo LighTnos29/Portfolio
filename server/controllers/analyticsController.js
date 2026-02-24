@@ -1,5 +1,6 @@
 const Visit = require('../models/visitModel');
 const ProjectView = require('../models/projectViewModel');
+const mongoose = require('mongoose');
 const crypto = require('crypto');
 
 // Helper function to hash IP for privacy
@@ -10,6 +11,14 @@ const hashIP = (ip) => {
 // Get comprehensive analytics data (admin only)
 module.exports.getAnalytics = async (req, res) => {
     try {
+        // Check if MongoDB is connected
+        if (mongoose.connection.readyState !== 1) {
+            return res.status(503).json({
+                success: false,
+                message: "Database connection not available",
+                error: "MongoDB is not connected"
+            });
+        }
         const now = new Date();
         const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
         const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
@@ -126,10 +135,11 @@ module.exports.getAnalytics = async (req, res) => {
 
     } catch (error) {
         console.error('Error fetching analytics:', error);
+        console.error('Error stack:', error.stack);
         res.status(500).json({
             success: false,
             message: "Error fetching analytics data",
-            error: error.message
+            error: process.env.NODE_ENV === 'production' ? 'Internal server error' : error.message
         });
     }
 };
