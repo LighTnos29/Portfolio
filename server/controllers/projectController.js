@@ -7,14 +7,6 @@ const path = require('path')
 // Get all projects (public)
 module.exports.getAllProjects = async (req, res) => {
     try {
-        // Check if MongoDB is connected
-        if (mongoose.connection.readyState !== 1) {
-            return res.status(503).json({
-                success: false,
-                message: "Database connection not available",
-                error: "MongoDB is not connected"
-            });
-        }
         const projects = await projectModel.find().sort({ createdAt: -1 })
         res.status(200).json({
             success: true,
@@ -57,15 +49,6 @@ module.exports.getProject = async (req, res) => {
 // Create project (admin only)
 module.exports.createProject = async (req, res) => {
     try {
-        // Check MongoDB connection
-        if (mongoose.connection.readyState !== 1) {
-            return res.status(503).json({
-                success: false,
-                message: "Database connection not available",
-                error: "MongoDB is not connected"
-            })
-        }
-
         let { title, domain, description, techStack, liveDemoUrl, githubUrl, imageUrl } = req.body
         if (!title || !domain) {
             return res.status(400).json({
@@ -98,15 +81,6 @@ module.exports.createProject = async (req, res) => {
 // Update project (admin only)
 module.exports.updateProject = async (req, res) => {
     try {
-        // Check MongoDB connection
-        if (mongoose.connection.readyState !== 1) {
-            return res.status(503).json({
-                success: false,
-                message: "Database connection not available",
-                error: "MongoDB is not connected"
-            })
-        }
-
         const { title, domain, description, techStack, liveDemoUrl, githubUrl, imageUrl } = req.body
         const project = await projectModel.findByIdAndUpdate(
             req.params.id,
@@ -136,15 +110,6 @@ module.exports.updateProject = async (req, res) => {
 // Delete project (admin only)
 module.exports.deleteProject = async (req, res) => {
     try {
-        // Check MongoDB connection
-        if (mongoose.connection.readyState !== 1) {
-            return res.status(503).json({
-                success: false,
-                message: "Database connection not available",
-                error: "MongoDB is not connected"
-            })
-        }
-
         const project = await projectModel.findByIdAndDelete(req.params.id)
         if (!project) {
             return res.status(404).json({
@@ -230,15 +195,6 @@ module.exports.githubPrivateRepoFetch = async (req, res) => {
 // Create project from GitHub repo using AI (admin only)
 module.exports.createProjectFromRepo = async (req, res) => {
     try {
-        // Check MongoDB connection
-        if (mongoose.connection.readyState !== 1) {
-            return res.status(503).json({
-                success: false,
-                message: "Database connection not available",
-                error: "MongoDB is not connected"
-            })
-        }
-
         const { repoName } = req.body;
         const owner = "LighTnos29";
 
@@ -388,6 +344,15 @@ module.exports.createProjectFromRepo = async (req, res) => {
     } catch (error) {
         console.error('Error creating project from repo:', error);
         console.error('Error stack:', error.stack);
+
+        // Handle MongoDB connection errors
+        if (error.name === 'MongoServerError' || error.name === 'MongooseError' || error.message?.includes('buffering timed out')) {
+            return res.status(503).json({
+                success: false,
+                message: "Database connection not available. Please try again in a moment.",
+                error: "MongoDB connection error"
+            });
+        }
 
         // Handle specific error types
         if (error.response) {

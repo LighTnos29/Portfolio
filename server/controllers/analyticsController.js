@@ -11,14 +11,6 @@ const hashIP = (ip) => {
 // Get comprehensive analytics data (admin only)
 module.exports.getAnalytics = async (req, res) => {
     try {
-        // Check MongoDB connection
-        if (mongoose.connection.readyState !== 1) {
-            return res.status(503).json({
-                success: false,
-                message: "Database connection not available",
-                error: "MongoDB is not connected"
-            });
-        }
         const now = new Date();
         const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
         const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
