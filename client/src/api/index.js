@@ -8,6 +8,11 @@ if (import.meta.env.PROD && API_BASE === '/api') {
     console.error('⚠️ VITE_API_BASE_URL is not set! Requests will fail. Set it in Vercel environment variables.')
 }
 
+// Log API_BASE in production for debugging
+if (import.meta.env.PROD) {
+    console.log('🔗 API_BASE configured as:', API_BASE)
+}
+
 // Backend base URL for serving static files (images)
 export const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000'
 
@@ -140,11 +145,14 @@ export const deleteProject = (id) =>
 
 export const fetchGithubRepos = () => request('/project/github/repos')
 
-export const createProjectFromRepo = (repoName) =>
-    request('/project/create-from-repo', {
+export const createProjectFromRepo = (repoName) => {
+    console.log('[createProjectFromRepo] Calling with repoName:', repoName)
+    console.log('[createProjectFromRepo] API_BASE:', API_BASE)
+    return request('/project/create-from-repo', {
         method: 'POST',
         body: JSON.stringify({ repoName }),
     })
+}
 
 export const uploadImage = async (file) => {
     const formData = new FormData()
