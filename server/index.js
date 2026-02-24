@@ -2,6 +2,7 @@ const express = require('express')
 const app = express()
 const cookieParser = require('cookie-parser')
 const cors = require('cors')
+const mongoose = require('mongoose')
 require('dotenv').config()
 const mongooseConnection = require('./config/mongooseConnection')
 const projectRouter = require('./routes/projectRouter')
@@ -103,6 +104,30 @@ app.use('/uploads', express.static('public/uploads'))
 
 app.get('/', (req, res) => {
     res.send("Hello")
+})
+
+// Health check endpoint with MongoDB status
+app.get('/health', (req, res) => {
+    addCorsHeaders(req, res)
+    const mongoStatus = mongoose.connection.readyState
+    const mongoStates = {
+        0: 'disconnected',
+        1: 'connected',
+        2: 'connecting',
+        3: 'disconnecting'
+    }
+
+    res.json({
+        status: 'ok',
+        timestamp: new Date().toISOString(),
+        mongodb: {
+            status: mongoStates[mongoStatus] || 'unknown',
+            readyState: mongoStatus,
+            connected: mongoStatus === 1
+        },
+        allowedOrigins: allowedOrigins,
+        environment: process.env.NODE_ENV || 'development'
+    })
 })
 
 // Project routes (public read + protected write)
