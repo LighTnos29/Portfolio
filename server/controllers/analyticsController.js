@@ -128,6 +128,21 @@ module.exports.getAnalytics = async (req, res) => {
     } catch (error) {
         console.error('Error fetching analytics:', error);
         console.error('Error stack:', error.stack);
+        
+        // Handle MongoDB connection errors
+        if (error.name === 'MongoServerError' || 
+            error.name === 'MongooseError' || 
+            error.name === 'MongoNetworkError' ||
+            error.message?.includes('buffering timed out') ||
+            error.message?.includes('connection') ||
+            mongoose.connection.readyState !== 1) {
+            return res.status(503).json({
+                success: false,
+                message: "Database connection not available. Please try again in a moment.",
+                error: "MongoDB connection error"
+            });
+        }
+        
         res.status(500).json({
             success: false,
             message: "Error fetching analytics data",

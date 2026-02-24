@@ -1,21 +1,5 @@
 const jwt = require("jsonwebtoken")
-
-// Helper to add CORS headers (same as in index.js)
-const addCorsHeaders = (req, res) => {
-    const allowedOrigins = process.env.ALLOWED_ORIGINS
-        ? process.env.ALLOWED_ORIGINS.split(',').map(origin => origin.trim())
-        : ['http://localhost:5173', 'http://localhost:5174']
-    
-    const origin = req.headers.origin
-    if (origin) {
-        const normalizedOrigin = origin.trim().toLowerCase()
-        const normalizedAllowed = allowedOrigins.map(o => o.trim().toLowerCase())
-        if (normalizedAllowed.indexOf(normalizedOrigin) !== -1 || allowedOrigins.indexOf(origin) !== -1) {
-            res.header('Access-Control-Allow-Origin', origin)
-            res.header('Access-Control-Allow-Credentials', 'true')
-        }
-    }
-}
+const addCorsHeaders = require('./corsHandler')
 
 const isLoggedIn = (req, res, next) => {
     if (!req.cookies.Token) {

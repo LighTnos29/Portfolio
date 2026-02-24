@@ -7,6 +7,7 @@ require('dotenv').config()
 const mongooseConnection = require('./config/mongooseConnection')
 const projectRouter = require('./routes/projectRouter')
 const adminRouter = require('./routes/adminRouter')
+const addCorsHeaders = require('./middlewares/corsHandler')
 
 // CORS configuration - supports both development and production
 const allowedOrigins = process.env.ALLOWED_ORIGINS
@@ -22,18 +23,6 @@ const isOriginAllowed = (origin) => {
     const normalizedOrigin = origin.trim().toLowerCase()
     const normalizedAllowed = allowedOrigins.map(o => o.trim().toLowerCase())
     return normalizedAllowed.indexOf(normalizedOrigin) !== -1 || allowedOrigins.indexOf(origin) !== -1
-}
-
-// Helper function to add CORS headers to response
-const addCorsHeaders = (req, res) => {
-    const origin = req.headers.origin
-    if (origin && isOriginAllowed(origin)) {
-        res.header('Access-Control-Allow-Origin', origin)
-        res.header('Access-Control-Allow-Credentials', 'true')
-        res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
-        res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With')
-        res.header('Access-Control-Expose-Headers', 'Set-Cookie')
-    }
 }
 
 // CORS configuration with explicit handling
@@ -63,34 +52,37 @@ const corsOptions = {
 // Apply CORS middleware BEFORE other middleware (handles OPTIONS preflight automatically)
 app.use(cors(corsOptions))
 
-// Intercept all responses to ensure CORS headers are always present
+// Middleware to ensure CORS headers on ALL responses
 app.use((req, res, next) => {
-    // Store original json method
+    // Override res.json
     const originalJson = res.json.bind(res)
-
-    // Override json to always add CORS headers
     res.json = function (data) {
         addCorsHeaders(req, res)
         return originalJson(data)
     }
 
-    // Store original send method
+    // Override res.send
     const originalSend = res.send.bind(res)
-
-    // Override send to always add CORS headers
     res.send = function (data) {
         addCorsHeaders(req, res)
         return originalSend(data)
     }
 
-    // Handle OPTIONS requests explicitly
+    // Override res.status().json() pattern
+    const originalStatus = res.status.bind(res)
+    res.status = function (code) {
+        addCorsHeaders(req, res)
+        return originalStatus(code)
+    }
+
+    // Handle OPTIONS preflight
     if (req.method === 'OPTIONS') {
         addCorsHeaders(req, res)
         res.header('Access-Control-Max-Age', '86400')
         return res.status(204).send()
     }
 
-    // Add CORS headers immediately for all requests
+    // Add headers immediately
     addCorsHeaders(req, res)
     next()
 })

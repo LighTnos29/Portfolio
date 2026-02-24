@@ -346,7 +346,12 @@ module.exports.createProjectFromRepo = async (req, res) => {
         console.error('Error stack:', error.stack);
 
         // Handle MongoDB connection errors
-        if (error.name === 'MongoServerError' || error.name === 'MongooseError' || error.message?.includes('buffering timed out')) {
+        if (error.name === 'MongoServerError' || 
+            error.name === 'MongooseError' || 
+            error.name === 'MongoNetworkError' ||
+            error.message?.includes('buffering timed out') ||
+            error.message?.includes('connection') ||
+            mongoose.connection.readyState !== 1) {
             return res.status(503).json({
                 success: false,
                 message: "Database connection not available. Please try again in a moment.",
