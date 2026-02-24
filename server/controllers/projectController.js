@@ -130,16 +130,62 @@ module.exports.deleteProject = async (req, res) => {
 // Fetch GitHub private repos (admin only)
 module.exports.githubPrivateRepoFetch = async (req, res) => {
     try {
+        // Check if token exists
+        if (!process.env.GITHUB_ACCESS_TOKEN) {
+            return res.status(500).json({
+                success: false,
+                message: "GitHub access token is not configured. Please set GITHUB_ACCESS_TOKEN in your environment variables."
+            });
+        }
+
         const response = await axios.get('https://api.github.com/user/repos', {
             headers: {
                 'Authorization': `Bearer ${process.env.GITHUB_ACCESS_TOKEN}`,
+                'Accept': 'application/vnd.github.v3+json'
             }
         });
 
-        res.status(200).json(response.data);
+        res.status(200).json({
+            success: true,
+            repos: response.data
+        });
     } catch (error) {
-        console.error(error.response?.data || error.message);
-        res.status(500).json({ message: "Error fetching repositories", error: error.message });
+        console.error('GitHub API Error:', error.response?.data || error.message);
+
+        // Handle specific GitHub API errors
+        if (error.response) {
+            const status = error.response.status;
+            const githubError = error.response.data;
+
+            if (status === 401) {
+                return res.status(401).json({
+                    success: false,
+                    message: "Invalid GitHub access token. Please check your GITHUB_ACCESS_TOKEN in environment variables.",
+                    error: githubError.message || "Unauthorized"
+                });
+            }
+
+            if (status === 403) {
+                return res.status(403).json({
+                    success: false,
+                    message: "GitHub API rate limit exceeded or token lacks required permissions.",
+                    error: githubError.message || "Forbidden"
+                });
+            }
+
+            return res.status(status).json({
+                success: false,
+                message: "Error fetching repositories from GitHub",
+                error: githubError.message || error.message
+            });
+        }
+
+        // Network or other errors
+        res.status(500).json({
+            success: false,
+            message: "Error connecting to GitHub API",
+            error: error.message
+        });
     }
 }
 

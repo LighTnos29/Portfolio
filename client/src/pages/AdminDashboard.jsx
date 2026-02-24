@@ -321,9 +321,17 @@ const GithubImportModal = ({ onClose, onImported }) => {
     const load = async () => {
       try {
         const data = await fetchGithubRepos()
-        setRepos(data)
+        // Handle new response format with success and repos fields
+        if (data.success && data.repos) {
+          setRepos(data.repos)
+        } else if (Array.isArray(data)) {
+          // Fallback for old format
+          setRepos(data)
+        } else {
+          setError(data.message || 'Failed to fetch GitHub repos')
+        }
       } catch (err) {
-        setError('Failed to fetch GitHub repos. Check your access token.')
+        setError(err.message || 'Failed to fetch GitHub repos. Check your access token.')
       } finally {
         setLoading(false)
       }
