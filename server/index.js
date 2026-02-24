@@ -56,6 +56,15 @@ app.use("/project", projectRouter)
 // Admin routes
 app.use("/admin", adminRouter)
 
+// Debug route to test server (must be before catch-all)
+app.get('/health', (req, res) => {
+    res.json({
+        status: 'ok',
+        timestamp: new Date().toISOString(),
+        allowedOrigins: process.env.ALLOWED_ORIGINS || 'default localhost'
+    })
+})
+
 // Catch-all for unmatched routes (for debugging)
 app.use((req, res) => {
     console.log(`Unmatched route: ${req.method} ${req.path}`)
@@ -63,15 +72,6 @@ app.use((req, res) => {
         error: 'Route not found',
         method: req.method,
         path: req.path
-    })
-})
-
-// Debug route to test server
-app.get('/health', (req, res) => {
-    res.json({
-        status: 'ok',
-        timestamp: new Date().toISOString(),
-        allowedOrigins: process.env.ALLOWED_ORIGINS || 'default localhost'
     })
 })
 
