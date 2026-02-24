@@ -16,10 +16,14 @@ module.exports.login = async function (req, res) {
 
             let token = generateToken("admin")
 
+            // For cross-origin requests (Vercel frontend to Render backend), use 'none' and 'secure'
+            const isProduction = process.env.NODE_ENV === 'production' || process.env.PORT
             res.cookie("Token", token, {
                 httpOnly: true,
-                sameSite: "strict",
-                maxAge: 24 * 60 * 60 * 1000
+                sameSite: isProduction ? "none" : "strict", // 'none' for cross-origin, 'strict' for same-origin
+                secure: isProduction, // Requires HTTPS in production
+                maxAge: 24 * 60 * 60 * 1000,
+                path: '/'
             })
 
             return res.status(200).json({
@@ -45,9 +49,12 @@ module.exports.login = async function (req, res) {
 
 module.exports.logout = async function (req, res) {
     try {
+        const isProduction = process.env.NODE_ENV === 'production' || process.env.PORT
         res.clearCookie("Token", {
             httpOnly: true,
-            sameSite: "strict",
+            sameSite: isProduction ? "none" : "strict",
+            secure: isProduction,
+            path: '/'
         });
 
         return res.status(200).json({
