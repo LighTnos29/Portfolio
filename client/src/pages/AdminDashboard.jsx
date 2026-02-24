@@ -346,9 +346,20 @@ const GithubImportModal = ({ onClose, onImported }) => {
     try {
       await createProjectFromRepo(repoName)
       setSuccess(`"${repoName}" imported successfully!`)
-      onImported?.()
+      // Call onImported callback to reload projects in parent component
+      if (onImported) onImported()
     } catch (err) {
-      setError(err.message || 'Import failed')
+      // Show more detailed error message
+      let errorMessage = err.message || 'Import failed'
+      if (err.status === 0) {
+        // Network error
+        errorMessage = `Connection failed. ${err.message}`
+        if (import.meta.env.PROD && err.apiBase === '/api') {
+          errorMessage += ' Make sure VITE_API_BASE_URL is set in Vercel environment variables.'
+        }
+      }
+      setError(errorMessage)
+      console.error('Import error:', err)
     } finally {
       setImporting(null)
     }
