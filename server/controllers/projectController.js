@@ -202,6 +202,14 @@ module.exports.createProjectFromRepo = async (req, res) => {
             });
         }
 
+        // Check if GitHub token exists
+        if (!process.env.GITHUB_ACCESS_TOKEN) {
+            return res.status(500).json({
+                success: false,
+                message: "GitHub access token is not configured. Please set GITHUB_ACCESS_TOKEN in your environment variables."
+            });
+        }
+
         const repoResponse = await axios.get(`https://api.github.com/repos/${owner}/${repoName}`, {
             headers: {
                 'Authorization': `Bearer ${process.env.GITHUB_ACCESS_TOKEN}`,
@@ -312,10 +320,58 @@ module.exports.createProjectFromRepo = async (req, res) => {
 
     } catch (error) {
         console.error('Error creating project from repo:', error);
+
+        // Handle specific error types
+        if (error.response) {
+            // GitHub API error
+            const status = error.response.status;
+            const githubError = error.response.data;
+
+            if (status === 401) {
+                return res.status(401).json({
+                    success: false,
+                    message: "Invalid GitHub access token. Please check your GITHUB_ACCESS_TOKEN in environment variables.",
+                    error: githubError.message || "Unauthorized"
+                });
+            }
+
+            if (status === 404) {
+                return res.status(404).json({
+                    success: false,
+                    message: `Repository "${repoName}" not found. Please check the repository name.`,
+                    error: githubError.message || "Repository not found"
+                });
+            }
+
+            if (status === 403) {
+                return res.status(403).json({
+                    success: false,
+                    message: "GitHub API rate limit exceeded or token lacks required permissions.",
+                    error: githubError.message || "Forbidden"
+                });
+            }
+
+            return res.status(status).json({
+                success: false,
+                message: "Error fetching repository data from GitHub",
+                error: githubError.message || error.message
+            });
+        }
+
+        // Database or validation errors
+        if (error.name === 'ValidationError') {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid project data",
+                error: error.message
+            });
+        }
+
+        // Generic error
         res.status(500).json({
             success: false,
             message: "Error creating project from repository",
-            error: error.message
+            error: error.message || "Unknown error occurred"
         });
     }
 }

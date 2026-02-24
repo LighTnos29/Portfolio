@@ -351,13 +351,24 @@ const GithubImportModal = ({ onClose, onImported }) => {
     } catch (err) {
       // Show more detailed error message
       let errorMessage = err.message || 'Import failed'
+
       if (err.status === 0) {
         // Network error
         errorMessage = `Connection failed. ${err.message}`
         if (import.meta.env.PROD && err.apiBase === '/api') {
           errorMessage += ' Make sure VITE_API_BASE_URL is set in Vercel environment variables.'
         }
+      } else if (err.status === 401) {
+        errorMessage = 'GitHub access token is invalid. Please check your GITHUB_ACCESS_TOKEN in Render environment variables.'
+      } else if (err.status === 404) {
+        errorMessage = `Repository "${repoName}" not found. Please check the repository name.`
+      } else if (err.status === 403) {
+        errorMessage = 'GitHub API rate limit exceeded or token lacks required permissions.'
+      } else if (err.error) {
+        // Use server-provided error message if available
+        errorMessage = err.error
       }
+
       setError(errorMessage)
       console.error('Import error:', err)
     } finally {
