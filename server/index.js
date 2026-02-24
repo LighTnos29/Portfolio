@@ -32,9 +32,10 @@ app.use(cors({
 }))
 // Request logging middleware (for debugging)
 app.use((req, res, next) => {
-    console.log(`${req.method} ${req.path}`, {
+    console.log(`[Main] ${req.method} ${req.path}`, {
         origin: req.headers.origin,
-        'content-type': req.headers['content-type']
+        'content-type': req.headers['content-type'],
+        originalUrl: req.originalUrl
     })
     next()
 })
@@ -67,7 +68,7 @@ app.get('/health', (req, res) => {
 
 // Catch-all for unmatched routes (for debugging)
 app.use((req, res) => {
-    console.log(`Unmatched route: ${req.method} ${req.path}`)
+    console.log(`[404 Handler] Unmatched route: ${req.method} ${req.path}`)
     res.status(404).json({
         error: 'Route not found',
         method: req.method,

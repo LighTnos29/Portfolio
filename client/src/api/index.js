@@ -12,7 +12,7 @@ async function request(endpoint, options = {}) {
     const cleanBase = API_BASE.endsWith('/') ? API_BASE.slice(0, -1) : API_BASE
     const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`
     const url = `${cleanBase}${cleanEndpoint}`
-    
+
     const config = {
         headers: {
             'Content-Type': 'application/json',
@@ -31,17 +31,17 @@ async function request(endpoint, options = {}) {
         response = await fetch(url, config)
     } catch (error) {
         // Network error (CORS, connection failed, etc.)
-        throw { 
-            status: 0, 
+        throw {
+            status: 0,
             message: 'Network error: Unable to connect to server. Please check your connection and API URL.',
-            error: error.message 
+            error: error.message
         }
     }
 
     // Check if response has content before parsing JSON
     const contentType = response.headers.get('content-type')
     const hasJsonContent = contentType && contentType.includes('application/json')
-    
+
     let data
     if (hasJsonContent) {
         try {
@@ -91,11 +91,17 @@ export const trackProjectView = (projectId, projectTitle) =>
 
 // ── Admin API ───────────────────────────────────────────────────────────────
 
-export const adminLogin = (code) =>
-    request('/admin/login', {
+export const adminLogin = (code) => {
+    console.log('[adminLogin] Calling login with:', {
+        code: code ? '***' : 'empty',
+        apiBase: API_BASE,
+        fullUrl: `${API_BASE.endsWith('/') ? API_BASE.slice(0, -1) : API_BASE}/admin/login`
+    })
+    return request('/admin/login', {
         method: 'POST',
         body: JSON.stringify({ code }),
     })
+}
 
 export const adminLogout = () =>
     request('/admin/logout', {
@@ -142,16 +148,16 @@ export const uploadImage = async (file) => {
             body: formData,
         })
     } catch (error) {
-        throw { 
-            status: 0, 
+        throw {
+            status: 0,
             message: 'Network error: Unable to upload image',
-            error: error.message 
+            error: error.message
         }
     }
 
     const contentType = response.headers.get('content-type')
     const hasJsonContent = contentType && contentType.includes('application/json')
-    
+
     let data
     if (hasJsonContent) {
         try {
