@@ -1,6 +1,6 @@
 # Portfolio Full-Stack Application
 
-A comprehensive full-stack portfolio application featuring a modern React frontend with stunning animations and a powerful Node.js backend with AI-powered project analysis using Google Gemini AI.
+A comprehensive full-stack portfolio application featuring a modern React frontend with stunning animations and a powerful Node.js backend with AI-powered project analysis using Groq AI.
 
 ## 🚀 Features
 
@@ -22,7 +22,7 @@ A comprehensive full-stack portfolio application featuring a modern React fronte
 - **Project Management**: Full CRUD operations for portfolio projects
 - **Image Upload**: Local file storage for project images using Multer
 - **GitHub Integration**: Fetch public and private repositories
-- **AI-Powered Analysis**: Automatically generate project descriptions using Google Gemini AI
+- **AI-Powered Analysis**: Automatically generate project descriptions using Groq AI
 - **Repository Processing**: Convert GitHub repositories into structured portfolio projects
 - **Analytics Tracking**: Visitor and project view tracking with privacy-focused IP hashing
 - **Secure Middleware**: Protected routes with authentication middleware
@@ -48,7 +48,7 @@ A comprehensive full-stack portfolio application featuring a modern React fronte
 - **Database**: MongoDB with Mongoose ODM
 - **Authentication**: JSON Web Tokens (JWT) with httpOnly cookies
 - **File Upload**: Multer for handling image uploads
-- **AI Integration**: Google Generative AI (Gemini 2.0 Flash)
+- **AI Integration**: Groq AI (Llama 3.3 70B)
 - **GitHub API**: Repository data fetching and analysis
 - **Security**: cookie-parser for session management, CORS for cross-origin requests
 
@@ -59,7 +59,7 @@ Before running this project, make sure you have:
 - Node.js (v14 or higher)
 - MongoDB database
 - GitHub Personal Access Token
-- Google Gemini AI API Key
+- Groq AI API Key
 - EmailJS account (for contact form)
 
 ## ⚙️ Installation
@@ -92,7 +92,7 @@ Before running this project, make sure you have:
    GITHUB_ACCESS_TOKEN=your_github_personal_access_token
    
    # AI Integration
-   GEMINI_API_KEY=your_google_gemini_api_key
+   GROQ_API_KEY=your_groq_api_key
    
    # Server
    PORT=3000
@@ -174,7 +174,7 @@ The application will be available at:
 | `JWT_SECRET` | Secret key for JWT token generation | ✅ |
 | `ADMIN_ACCESS_CODE` | Admin access code for authentication | ✅ |
 | `GITHUB_ACCESS_TOKEN` | GitHub Personal Access Token | ✅ |
-| `GEMINI_API_KEY` | Google Gemini AI API Key | ✅ |
+| `GROQ_API_KEY` | Groq AI API Key | ✅ |
 | `PORT` | Server port (default: 3000) | ❌ |
 | `ALLOWED_ORIGINS` | Comma-separated list of allowed CORS origins (default: localhost) | ❌ |
 
@@ -352,7 +352,7 @@ Content-Type: application/json
 1. Fetches repository details from GitHub
 2. Downloads and analyzes README content
 3. Identifies programming languages used
-4. Sends data to Google Gemini AI for intelligent analysis
+4. Sends data to Groq AI for intelligent analysis
 5. Automatically creates a structured project with:
    - Professional title generation
    - Domain categorization
@@ -362,7 +362,7 @@ Content-Type: application/json
 
 ## 🧠 AI Integration Features
 
-The `/project/create-from-repo` endpoint uses Google Gemini AI to:
+The `/project/create-from-repo` endpoint uses Groq AI to:
 
 - **Analyze Repository Content**: Processes README files, repository descriptions, and metadata
 - **Generate Professional Titles**: Creates clear, descriptive project titles

@@ -1,7 +1,7 @@
 const projectModel = require('../models/projectModel')
 const mongoose = require('mongoose')
 const axios = require('axios')
-const { GoogleGenerativeAI } = require('@google/generative-ai')
+const Groq = require('groq-sdk')
 const path = require('path')
 
 // Get all projects (public)
@@ -258,43 +258,54 @@ module.exports.createProjectFromRepo = async (req, res) => {
             languages = [];
         }
 
-        // Try AI-powered description, fall back to raw GitHub data
         let projectData;
         try {
-            const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-            const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-
-            const prompt = `
-            Analyze this GitHub repository and create a structured project description:
-
-            Repository Name: ${repoData.name}
-            Description: ${repoData.description || 'No description provided'}
-            README Content: ${readmeContent}
-            Languages Used: ${languages.join(', ')}
-            Stars: ${repoData.stargazers_count}
-            Homepage: ${repoData.homepage || 'N/A'}
-
-            Based on this information, please provide a JSON response with the following structure:
-            {
-                "title": "Project title (concise and descriptive)",
-                "domain": "Project domain/category (e.g., Web Development, Mobile App, AI/ML, etc.)",
-                "description": "Detailed project description (2-3 sentences)",
-                "techStack": ["array", "of", "technologies", "used"]
+            if (!process.env.GROQ_API_KEY) {
+                throw new Error("GROQ_API_KEY is not configured. Using GitHub data as fallback.");
             }
 
-            Focus on:
-            1. Creating a clear, professional title
-            2. Categorizing the project domain appropriately
-            3. Writing a compelling description that highlights key features
-            4. Listing the main technologies/frameworks used
+            const groq = new Groq({
+                apiKey: process.env.GROQ_API_KEY
+            });
 
-            Return only valid JSON without any additional text or formatting.
-            `;
+            const prompt = `Analyze this GitHub repository and create a structured project description:
 
-            const result = await model.generateContent(prompt);
-            const response = await result.response;
-            let aiResponse = response.text();
+Repository Name: ${repoData.name}
+Description: ${repoData.description || 'No description provided'}
+README Content: ${readmeContent}
+Languages Used: ${languages.join(', ')}
+Stars: ${repoData.stargazers_count}
+Homepage: ${repoData.homepage || 'N/A'}
 
+Based on this information, please provide a JSON response with the following structure:
+{
+    "title": "Project title (concise and descriptive)",
+    "domain": "Project domain/category (e.g., Web Development, Mobile App, AI/ML, etc.)",
+    "description": "Detailed project description (2-3 sentences)",
+    "techStack": ["array", "of", "technologies", "used"]
+}
+
+Focus on:
+1. Creating a clear, professional title
+2. Categorizing the project domain appropriately
+3. Writing a compelling description that highlights key features
+4. Listing the main technologies/frameworks used
+
+Return only valid JSON without any additional text or formatting.`;
+
+            const completion = await groq.chat.completions.create({
+                messages: [
+                    {
+                        role: "user",
+                        content: prompt
+                    }
+                ],
+                model: "llama-3.3-70b-versatile",
+                temperature: 0.7,
+                max_tokens: 1000
+            });
+
+            let aiResponse = completion.choices[0]?.message?.content || '';
             aiResponse = aiResponse.replace(/```json\s*/g, '').replace(/```\s*/g, '');
 
             const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
