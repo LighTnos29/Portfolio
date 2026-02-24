@@ -64,37 +64,66 @@ mongoose.set('bufferCommands', false)
 
 // Connection options for reliability
 const connectionOptions = {
-    serverSelectionTimeoutMS: 10000, // 10 seconds to select server
+    serverSelectionTimeoutMS: 30000, // 30 seconds to select server
     socketTimeoutMS: 45000, // 45 seconds socket timeout
-    connectTimeoutMS: 10000, // 10 seconds to connect
+    connectTimeoutMS: 30000, // 30 seconds to connect
     maxPoolSize: 10, // Maintain up to 10 socket connections
-    minPoolSize: 2, // Maintain at least 2 socket connections
     retryWrites: true,
     w: 'majority'
 }
 
-// Connect to MongoDB
+// Connect to MongoDB with retry logic
+let isConnecting = false
+let connectionRetries = 0
+const MAX_RETRIES = 3
+
 async function connectToMongoDB() {
+    if (isConnecting) {
+        console.log('⏳ Connection already in progress...')
+        return false
+    }
+
+    if (mongoose.connection.readyState === 1) {
+        console.log('✅ Already connected to MongoDB')
+        return true
+    }
+
+    isConnecting = true
+
     try {
+        console.log(`🔄 Attempting connection (attempt ${connectionRetries + 1}/${MAX_RETRIES + 1})...`)
         await mongoose.connect(connectionString, connectionOptions)
 
         console.log('✅ MongoDB connected successfully')
         console.log('📊 Database:', mongoose.connection.db?.databaseName || DB_NAME)
         console.log('🔗 Connection state:', mongoose.connection.readyState === 1 ? 'Connected' : 'Not connected')
 
+        connectionRetries = 0
+        isConnecting = false
         return true
     } catch (error) {
-        console.error('❌ MongoDB connection failed')
+        connectionRetries++
+        isConnecting = false
+
+        console.error(`❌ MongoDB connection failed (attempt ${connectionRetries})`)
         console.error('📝 Error:', error.message)
         console.error('🔖 Error code:', error.code || error.name)
         console.error('🔗 URI format:', safeUri)
-        console.error('\n🔍 Troubleshooting:')
-        console.error('1. Check MONGODB_URI in Render environment variables')
-        console.error('2. Verify MongoDB Atlas Network Access (allow 0.0.0.0/0)')
-        console.error('3. Confirm username and password are correct')
-        console.error('4. Check if MongoDB Atlas cluster is running')
 
-        // Don't throw - let server start and handle errors gracefully
+        if (connectionRetries <= MAX_RETRIES) {
+            console.log(`🔄 Retrying in 5 seconds... (${connectionRetries}/${MAX_RETRIES})`)
+            setTimeout(() => {
+                connectToMongoDB()
+            }, 5000)
+        } else {
+            console.error('\n🔍 Troubleshooting:')
+            console.error('1. Check MONGODB_URI in Render environment variables')
+            console.error('2. Verify MongoDB Atlas Network Access (allow 0.0.0.0/0)')
+            console.error('3. Confirm username and password are correct')
+            console.error('4. Check if MongoDB Atlas cluster is running')
+            console.error('5. Verify the connection string format is correct')
+        }
+
         return false
     }
 }
@@ -127,4 +156,15 @@ process.on('SIGINT', async () => {
     process.exit(0)
 })
 
+// Export mongoose and helper functions
 module.exports = mongoose
+module.exports.isConnected = () => mongoose.connection.readyState === 1
+module.exports.waitForConnection = async (timeout = 10000) => {
+    if (mongoose.connection.readyState === 1) return true
+
+    const startTime = Date.now()
+    while (mongoose.connection.readyState !== 1 && (Date.now() - startTime) < timeout) {
+        await new Promise(resolve => setTimeout(resolve, 500))
+    }
+    return mongoose.connection.readyState === 1
+}

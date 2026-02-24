@@ -7,6 +7,15 @@ const path = require('path')
 // Get all projects (public)
 module.exports.getAllProjects = async (req, res) => {
     try {
+        // Check MongoDB connection
+        if (mongoose.connection.readyState !== 1) {
+            return res.status(503).json({
+                success: false,
+                message: "Database connection not available. Please try again in a moment.",
+                error: "MongoDB is not connected"
+            })
+        }
+
         const projects = await projectModel.find().sort({ createdAt: -1 })
         res.status(200).json({
             success: true,
@@ -15,6 +24,21 @@ module.exports.getAllProjects = async (req, res) => {
     } catch (error) {
         console.error('Error fetching projects:', error);
         console.error('Error stack:', error.stack);
+        
+        // Handle MongoDB connection errors
+        if (error.name === 'MongoServerError' || 
+            error.name === 'MongooseError' || 
+            error.name === 'MongoNetworkError' ||
+            error.message?.includes('buffering timed out') ||
+            error.message?.includes('connection') ||
+            mongoose.connection.readyState !== 1) {
+            return res.status(503).json({
+                success: false,
+                message: "Database connection not available. Please try again in a moment.",
+                error: "MongoDB connection error"
+            });
+        }
+        
         res.status(500).json({
             success: false,
             message: "Error fetching projects",
