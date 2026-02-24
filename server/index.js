@@ -21,12 +21,18 @@ const corsOptions = {
         // Allow requests with no origin (like mobile apps or curl requests, or same-origin)
         if (!origin) return callback(null, true)
 
-        if (allowedOrigins.indexOf(origin) !== -1) {
+        // Normalize origin (trim and lowercase for comparison)
+        const normalizedOrigin = origin.trim().toLowerCase()
+        const normalizedAllowed = allowedOrigins.map(o => o.trim().toLowerCase())
+
+        if (normalizedAllowed.indexOf(normalizedOrigin) !== -1 || allowedOrigins.indexOf(origin) !== -1) {
             callback(null, true)
         } else {
             // Log for debugging
             console.log('CORS blocked origin:', origin)
+            console.log('Normalized origin:', normalizedOrigin)
             console.log('Allowed origins:', allowedOrigins)
+            console.log('Normalized allowed:', normalizedAllowed)
             callback(new Error(`Not allowed by CORS. Origin: ${origin} not in allowed list.`))
         }
     },
@@ -39,8 +45,24 @@ const corsOptions = {
     maxAge: 86400 // Cache preflight requests for 24 hours
 }
 
-// Apply CORS middleware (handles OPTIONS preflight automatically)
+// Apply CORS middleware BEFORE other middleware (handles OPTIONS preflight automatically)
 app.use(cors(corsOptions))
+
+// Additional explicit OPTIONS handler as fallback (before other routes)
+app.use((req, res, next) => {
+    if (req.method === 'OPTIONS') {
+        const origin = req.headers.origin
+        if (origin && allowedOrigins.some(o => o.trim().toLowerCase() === origin.trim().toLowerCase())) {
+            res.header('Access-Control-Allow-Origin', origin)
+            res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+            res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With')
+            res.header('Access-Control-Allow-Credentials', 'true')
+            res.header('Access-Control-Max-Age', '86400')
+            return res.status(204).send()
+        }
+    }
+    next()
+})
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))

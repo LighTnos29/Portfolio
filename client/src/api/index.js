@@ -145,20 +145,20 @@ export const deleteProject = (id) =>
 
 export const fetchGithubRepos = () => request('/project/github/repos')
 
-export const createProjectFromRepo = (repoName) => {
-    console.log('[createProjectFromRepo] Calling with repoName:', repoName)
-    console.log('[createProjectFromRepo] API_BASE:', API_BASE)
-    return request('/project/create-from-repo', {
+export const createProjectFromRepo = (repoName) =>
+    request('/project/create-from-repo', {
         method: 'POST',
         body: JSON.stringify({ repoName }),
     })
-}
 
 export const uploadImage = async (file) => {
     const formData = new FormData()
     formData.append('image', file)
 
-    const url = `${API_BASE}/project/upload-image`
+    // Ensure proper URL construction
+    const cleanBase = API_BASE.endsWith('/') ? API_BASE.slice(0, -1) : API_BASE
+    const url = `${cleanBase}/project/upload-image`
+    
     let response
     try {
         response = await fetch(url, {
