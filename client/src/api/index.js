@@ -8,13 +8,22 @@ export const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost
 
 // Helper for making API calls
 async function request(endpoint, options = {}) {
-    const url = `${API_BASE}${endpoint}`
+    // Ensure endpoint starts with / and API_BASE doesn't end with /
+    const cleanBase = API_BASE.endsWith('/') ? API_BASE.slice(0, -1) : API_BASE
+    const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`
+    const url = `${cleanBase}${cleanEndpoint}`
+    
     const config = {
         headers: {
             'Content-Type': 'application/json',
         },
         credentials: 'include',
         ...options,
+    }
+
+    // Debug logging (remove in production if needed)
+    if (import.meta.env.DEV) {
+        console.log('API Request:', { method: config.method || 'GET', url, endpoint })
     }
 
     let response
