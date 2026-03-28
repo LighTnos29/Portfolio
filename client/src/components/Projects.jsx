@@ -3,6 +3,16 @@ import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { getProjects, trackProjectView, BACKEND_URL } from '../api'
 
+const safeUrl = (url) => {
+  if (!url) return null
+  try {
+    const parsed = new URL(url)
+    return parsed.protocol === 'https:' || parsed.protocol === 'http:' ? url : null
+  } catch {
+    return null
+  }
+}
+
 gsap.registerPlugin(ScrollTrigger)
 
 const NAV_H = 72
@@ -45,6 +55,8 @@ const CardContent = ({ project, isMobile, onProjectClick }) => (
               <img
                 src={project.imageUrl.startsWith('http') ? project.imageUrl : `${BACKEND_URL}${project.imageUrl}`}
                 alt={project.title}
+                loading="lazy"
+                decoding="async"
                 className="absolute inset-0 w-full h-full object-cover"
               />
               <div className="absolute inset-0 bg-black/20 pointer-events-none" />
@@ -80,14 +92,14 @@ const CardContent = ({ project, isMobile, onProjectClick }) => (
             ))}
           </div>
           <div className="flex flex-wrap gap-2 pt-1">
-            {project.liveDemoUrl && (
-              <a href={project.liveDemoUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => { e.stopPropagation(); onProjectClick?.(project); }}
+            {safeUrl(project.liveDemoUrl) && (
+              <a href={safeUrl(project.liveDemoUrl)} target="_blank" rel="noopener noreferrer" onClick={(e) => { e.stopPropagation(); onProjectClick?.(project); }}
                 className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full border border-white/20 bg-white/5 text-white/80 text-[11px] font-medium transition-all duration-300 hover:bg-white/10 hover:text-white">
                 Live Demo <ExternalIcon />
               </a>
             )}
-            {project.githubUrl && (
-              <a href={project.githubUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => { e.stopPropagation(); onProjectClick?.(project); }}
+            {safeUrl(project.githubUrl) && (
+              <a href={safeUrl(project.githubUrl)} target="_blank" rel="noopener noreferrer" onClick={(e) => { e.stopPropagation(); onProjectClick?.(project); }}
                 className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full border border-white/10 text-white/50 text-[11px] font-medium transition-all duration-300 hover:bg-white/5 hover:text-white/80">
                 <GithubIcon /> GitHub
               </a>
@@ -115,14 +127,14 @@ const CardContent = ({ project, isMobile, onProjectClick }) => (
             ))}
           </div>
           <div className="flex flex-wrap gap-3 pt-1">
-            {project.liveDemoUrl && (
-              <a href={project.liveDemoUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => { e.stopPropagation(); onProjectClick?.(project); }}
+            {safeUrl(project.liveDemoUrl) && (
+              <a href={safeUrl(project.liveDemoUrl)} target="_blank" rel="noopener noreferrer" onClick={(e) => { e.stopPropagation(); onProjectClick?.(project); }}
                 className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-white/20 bg-white/5 text-white/80 text-sm font-medium transition-all duration-300 hover:bg-white/10 hover:border-white/40 hover:text-white">
                 Live Demo <ExternalIcon />
               </a>
             )}
-            {project.githubUrl && (
-              <a href={project.githubUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => { e.stopPropagation(); onProjectClick?.(project); }}
+            {safeUrl(project.githubUrl) && (
+              <a href={safeUrl(project.githubUrl)} target="_blank" rel="noopener noreferrer" onClick={(e) => { e.stopPropagation(); onProjectClick?.(project); }}
                 className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-white/10 text-white/50 text-sm font-medium transition-all duration-300 hover:bg-white/5 hover:border-white/20 hover:text-white/80">
                 <GithubIcon /> GitHub
               </a>
@@ -137,6 +149,8 @@ const CardContent = ({ project, isMobile, onProjectClick }) => (
               <img
                 src={project.imageUrl.startsWith('http') ? project.imageUrl : `${BACKEND_URL}${project.imageUrl}`}
                 alt={project.title}
+                loading="lazy"
+                decoding="async"
                 className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-[1.03]"
               />
               <div className="absolute inset-0 bg-black/15 pointer-events-none" />
@@ -164,22 +178,43 @@ const Projects = () => {
   const headingRef = useRef(null)
   const cardRefs = useRef([])
   const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768)
-  const [projects, setProjects] = useState([])
-  const [loading, setLoading] = useState(true)
+  const CACHE_KEY = 'portfolio_projects'
+  const CACHE_TTL = 5 * 60 * 1000 // 5 minutes
 
-  // Fetch projects from API
+  const addGradients = (list) =>
+    list.map((p, i) => ({ ...p, gradient: GRADIENTS[i % GRADIENTS.length] }))
+
+  const getCachedProjects = () => {
+    try {
+      const raw = sessionStorage.getItem(CACHE_KEY)
+      if (!raw) return null
+      const { data, ts } = JSON.parse(raw)
+      if (Date.now() - ts > CACHE_TTL) return null
+      return data
+    } catch { return null }
+  }
+
+  const setCachedProjects = (data) => {
+    try {
+      sessionStorage.setItem(CACHE_KEY, JSON.stringify({ data, ts: Date.now() }))
+    } catch { /* storage full — ignore */ }
+  }
+
+  const cached = getCachedProjects()
+  const [projects, setProjects] = useState(() => cached ? addGradients(cached) : [])
+  const [loading, setLoading] = useState(!cached)
+
+  // Fetch projects from API (skips if cache is fresh, background-refreshes otherwise)
   useEffect(() => {
     const fetchProjects = async () => {
       try {
         const data = await getProjects()
-        const projectsWithGradients = (data.projects || []).map((p, i) => ({
-          ...p,
-          gradient: GRADIENTS[i % GRADIENTS.length],
-        }))
-        setProjects(projectsWithGradients)
+        const list = data.projects || []
+        setCachedProjects(list)
+        setProjects(addGradients(list))
       } catch (error) {
-        console.error('Error fetching projects:', error)
-        setProjects([])
+        if (import.meta.env.DEV) console.error('Error fetching projects:', error)
+        if (projects.length === 0) setProjects([])
       } finally {
         setLoading(false)
       }

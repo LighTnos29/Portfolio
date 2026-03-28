@@ -10,7 +10,7 @@ const isLoggedIn = (req, res, next) => {
         })
     }
     try {
-        const decode = jwt.verify(req.cookies.Token, process.env.JWT_SECRET)
+        const decode = jwt.verify(req.cookies.Token, process.env.JWT_SECRET, { algorithms: ['HS256'] })
         req.user = decode
         next()
     } catch (error) {

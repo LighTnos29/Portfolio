@@ -13,7 +13,7 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS
     ? process.env.ALLOWED_ORIGINS.split(',').map(origin => origin.trim())
     : ['http://localhost:5173', 'http://localhost:5174']
 
-console.log('CORS Allowed Origins:', allowedOrigins)
+if (process.env.NODE_ENV !== 'production') console.log('CORS Allowed Origins:', allowedOrigins)
 
 const isOriginAllowed = (origin) => {
     if (!origin) return false
@@ -28,8 +28,8 @@ const corsOptions = {
         if (isOriginAllowed(origin)) {
             callback(null, true)
         } else {
-            console.log('CORS blocked origin:', origin)
-            callback(new Error(`Not allowed by CORS. Origin: ${origin} not in allowed list.`))
+            if (process.env.NODE_ENV !== 'production') console.log('CORS blocked origin:', origin)
+            callback(new Error('Not allowed by CORS'))
         }
     },
     credentials: true,
@@ -72,8 +72,8 @@ app.use((req, res, next) => {
     next()
 })
 
-app.use(express.json())
-app.use(express.urlencoded({ extended: true }))
+app.use(express.json({ limit: '10kb' }))
+app.use(express.urlencoded({ extended: true, limit: '10kb' }))
 app.use(cookieParser())
 
 app.use('/uploads', express.static('public/uploads'))
@@ -84,24 +84,10 @@ app.get('/', (req, res) => {
 
 app.get('/health', (req, res) => {
     addCorsHeaders(req, res)
-    const mongoStatus = mongoose.connection.readyState
-    const mongoStates = {
-        0: 'disconnected',
-        1: 'connected',
-        2: 'connecting',
-        3: 'disconnecting'
-    }
-
     res.json({
         status: 'ok',
         timestamp: new Date().toISOString(),
-        mongodb: {
-            status: mongoStates[mongoStatus] || 'unknown',
-            readyState: mongoStatus,
-            connected: mongoStatus === 1
-        },
-        allowedOrigins: allowedOrigins,
-        environment: process.env.NODE_ENV || 'development'
+        dbConnected: mongoose.connection.readyState === 1
     })
 })
 
@@ -109,13 +95,12 @@ app.use("/project", projectRouter)
 app.use("/admin", adminRouter)
 
 app.use((err, req, res, next) => {
-    console.error('Global error handler:', err);
+    if (process.env.NODE_ENV !== 'production') console.error('Global error handler:', err);
     addCorsHeaders(req, res)
     const status = err.status || err.statusCode || 500;
     res.status(status).json({
         success: false,
-        message: err.message || 'Internal server error',
-        error: process.env.NODE_ENV === 'production' ? undefined : err.stack
+        message: 'Internal server error'
     });
 });
 
@@ -132,5 +117,4 @@ const PORT = process.env.PORT || 3000
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`)
-    console.log(`CORS Allowed Origins:`, allowedOrigins)
 })

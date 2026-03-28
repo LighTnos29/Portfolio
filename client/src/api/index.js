@@ -1,12 +1,5 @@
 const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api'
 
-if (import.meta.env.PROD && API_BASE === '/api') {
-    console.error('⚠️ VITE_API_BASE_URL is not set! Requests will fail. Set it in Vercel environment variables.')
-}
-
-if (import.meta.env.PROD) {
-    console.log('🔗 API_BASE configured as:', API_BASE)
-}
 
 export const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000'
 
@@ -28,16 +21,10 @@ async function request(endpoint, options = {}) {
     try {
         response = await fetch(url, config)
     } catch (error) {
-        const errorDetails = {
+        throw {
             status: 0,
-            message: 'Network error: Unable to connect to server. Please check your connection and API URL.',
-            error: error.message,
-            url: url,
-            apiBase: API_BASE,
-            isProduction: import.meta.env.PROD
+            message: 'Network error: Unable to connect to server.',
         }
-        console.error('API Request Failed:', errorDetails)
-        throw errorDetails
     }
 
     const contentType = response.headers.get('content-type')
@@ -67,12 +54,9 @@ async function request(endpoint, options = {}) {
 
         if (!response.ok) {
             if (response.status === 405) {
-                const errorMsg = API_BASE === '/api' && import.meta.env.PROD
-                    ? 'Method not allowed. VITE_API_BASE_URL is not set in Vercel. Please configure it in Vercel environment variables.'
-                    : `Method not allowed (405). Check if the API URL is correct. Current API_BASE: ${API_BASE}`
                 throw {
                     status: response.status,
-                    message: errorMsg,
+                    message: 'Request not allowed.',
                     ...data
                 }
             }

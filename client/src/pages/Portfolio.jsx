@@ -1,8 +1,9 @@
-import { useEffect } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import Lenis from 'lenis'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
+import Preloader from '../components/Preloader.jsx'
 import Hero from '../components/hero.jsx'
 import BackgroundGradient from '../components/BackgroundGradient.jsx'
 import Navbar from '../components/Navbar.jsx'
@@ -18,6 +19,9 @@ import { trackVisit } from '../api'
 gsap.registerPlugin(ScrollTrigger)
 
 function Portfolio() {
+  const [showPreloader, setShowPreloader] = useState(true)
+  const handlePreloaderComplete = useCallback(() => setShowPreloader(false), [])
+
   useEffect(() => {
     const lenis = new Lenis({
       duration: 1.8,
@@ -49,6 +53,8 @@ function Portfolio() {
 
   return (
     <div className="relative min-h-screen" style={{ backgroundColor: '#000000', overflowX: 'hidden' }}>
+      {showPreloader && <Preloader onComplete={handlePreloaderComplete} />}
+
       <SEO
         title="Lightnos.dev — Udit Agrawal | Full Stack Developer"
         description="Full-stack developer and MERN Stack specialist with over 3 years of experience. Building scalable systems and shipping products that move fast."

@@ -4,10 +4,31 @@ const axios = require('axios')
 const Groq = require('groq-sdk')
 const path = require('path')
 
+// In-memory cache for projects (rarely changes, avoids DB hit on every visitor)
+let projectsCache = null
+let cacheTimestamp = 0
+const CACHE_TTL = 5 * 60 * 1000 // 5 minutes
+
+function invalidateProjectsCache() {
+    projectsCache = null
+    cacheTimestamp = 0
+}
+
 // Get all projects (public)
 module.exports.getAllProjects = async (req, res) => {
     try {
-        const projects = await projectModel.find().sort({ createdAt: -1 })
+        const now = Date.now()
+        if (projectsCache && (now - cacheTimestamp) < CACHE_TTL) {
+            return res.status(200).json({
+                success: true,
+                projects: projectsCache
+            })
+        }
+
+        const projects = await projectModel.find().sort({ createdAt: -1 }).lean()
+        projectsCache = projects
+        cacheTimestamp = now
+
         res.status(200).json({
             success: true,
             projects
@@ -74,6 +95,7 @@ module.exports.createProject = async (req, res) => {
             liveDemoUrl,
             imageUrl
         })
+        invalidateProjectsCache()
         res.status(200).json({
             success: true,
             message: "Project created successfully",
@@ -102,6 +124,7 @@ module.exports.updateProject = async (req, res) => {
                 message: "Project not found"
             })
         }
+        invalidateProjectsCache()
         res.status(200).json({
             success: true,
             message: "Project updated successfully",
@@ -126,6 +149,7 @@ module.exports.deleteProject = async (req, res) => {
                 message: "Project not found"
             })
         }
+        invalidateProjectsCache()
         res.status(200).json({
             success: true,
             message: "Project deleted successfully"
@@ -355,6 +379,7 @@ Return only valid JSON without any additional text or formatting.`;
             liveDemoUrl: repoData.homepage || ''
         });
 
+        invalidateProjectsCache()
         res.status(200).json({
             success: true,
             message: "Project created successfully from repository",

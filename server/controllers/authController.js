@@ -17,7 +17,7 @@ module.exports.login = async function (req, res) {
             let token = generateToken("admin")
 
             // For cross-origin requests (Vercel frontend to Render backend), use 'none' and 'secure'
-            const isProduction = process.env.NODE_ENV === 'production' || process.env.PORT
+            const isProduction = process.env.NODE_ENV === 'production'
             res.cookie("Token", token, {
                 httpOnly: true,
                 sameSite: isProduction ? "none" : "strict", // 'none' for cross-origin, 'strict' for same-origin
@@ -39,17 +39,17 @@ module.exports.login = async function (req, res) {
         }
 
     } catch (error) {
+        if (process.env.NODE_ENV !== 'production') console.error('Login error:', error.message);
         return res.status(500).json({
             success: false,
             message: "Error logging in",
-            error: error.message,
         });
     }
 };
 
 module.exports.logout = async function (req, res) {
     try {
-        const isProduction = process.env.NODE_ENV === 'production' || process.env.PORT
+        const isProduction = process.env.NODE_ENV === 'production'
         res.clearCookie("Token", {
             httpOnly: true,
             sameSite: isProduction ? "none" : "strict",
@@ -62,10 +62,10 @@ module.exports.logout = async function (req, res) {
             message: "Logout successful.",
         });
     } catch (error) {
+        if (process.env.NODE_ENV !== 'production') console.error('Logout error:', error.message);
         return res.status(500).json({
             success: false,
             message: "Error logging out",
-            error: error.message,
         });
     }
 };

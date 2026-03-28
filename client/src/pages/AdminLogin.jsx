@@ -31,19 +31,13 @@ const AdminLogin = () => {
       await adminLogin(code)
       navigate('/admin/dashboard')
     } catch (err) {
-      // Show more detailed error message
-      let errorMessage = err.message || 'Invalid access code'
       if (err.status === 0) {
-        // Network error - provide more context
-        errorMessage = `Connection failed. ${err.message}`
-        if (err.url) {
-          console.error('Failed URL:', err.url)
-        }
-        if (err.apiBase === '/api' && import.meta.env.PROD) {
-          errorMessage += ' Make sure VITE_API_BASE_URL is set in Vercel environment variables.'
-        }
+        setError('Connection failed. Please try again.')
+      } else if (err.status === 401) {
+        setError('Invalid access code.')
+      } else {
+        setError('Something went wrong. Please try again.')
       }
-      setError(errorMessage)
     } finally {
       setLoading(false)
     }

@@ -5,7 +5,8 @@ const crypto = require('crypto');
 
 // Helper function to hash IP for privacy
 const hashIP = (ip) => {
-    return crypto.createHash('sha256').update(ip + (process.env.JWT_SECRET || 'fallback')).digest('hex').slice(0, 16);
+    const salt = process.env.IP_HASH_SALT || process.env.JWT_SECRET || 'portfolio-salt';
+    return crypto.createHash('sha256').update(ip + salt).digest('hex').slice(0, 16);
 };
 
 // Get comprehensive analytics data (admin only)
@@ -135,21 +136,18 @@ module.exports.getAnalytics = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error fetching analytics:', error);
-        
-        // Handle MongoDB errors
+        if (process.env.NODE_ENV !== 'production') console.error('Error fetching analytics:', error.message);
+
         if (error.name === 'MongoServerError' || error.name === 'MongooseError' || error.name === 'MongoNetworkError') {
             return res.status(503).json({
                 success: false,
-                message: "Database connection error. Please try again.",
-                error: "MongoDB connection issue"
+                message: "Database connection error. Please try again."
             })
         }
-        
+
         res.status(500).json({
             success: false,
-            message: "Error fetching analytics data",
-            error: process.env.NODE_ENV === 'production' ? 'Internal server error' : error.message
+            message: "Error fetching analytics data"
         });
     }
 };
