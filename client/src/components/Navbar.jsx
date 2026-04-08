@@ -1,9 +1,18 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { gsap } from 'gsap';
 
+const NAV_LINKS = [
+  { href: '#home', label: 'Home' },
+  { href: '#about', label: 'About' },
+  { href: '#skills', label: 'Skills' },
+  { href: '#projects', label: 'Projects' },
+  { href: '#experience', label: 'Experience' },
+];
+
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [activeSection, setActiveSection] = useState('home');
   const mobileMenuRef = useRef(null);
   const mobileMenuContentRef = useRef(null);
 
@@ -11,6 +20,21 @@ const Navbar = () => {
     const onScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  useEffect(() => {
+    const ids = NAV_LINKS.map(l => l.href.replace('#', ''));
+    const observers = ids.map(id => {
+      const el = document.getElementById(id);
+      if (!el) return null;
+      const obs = new IntersectionObserver(
+        ([entry]) => { if (entry.isIntersecting) setActiveSection(id); },
+        { rootMargin: '-40% 0px -55% 0px', threshold: 0 }
+      );
+      obs.observe(el);
+      return obs;
+    });
+    return () => observers.forEach(o => o?.disconnect());
   }, []);
 
   const toggleMobileMenu = () => {
@@ -76,11 +100,26 @@ const Navbar = () => {
 
         {/* Desktop Navigation Links */}
         <div className="hidden md:flex items-center space-x-4 lg:space-x-6">
-          <a href="#home" className="transition-colors duration-300 text-sm lg:text-base xl:text-lg font-medium hover:text-white" style={{ color: '#D1DAE0', fontFamily: 'Poppins, sans-serif' }}>Home</a>
-          <a href="#about" className="transition-colors duration-300 text-sm lg:text-base xl:text-lg font-medium hover:text-white" style={{ color: '#D1DAE0', fontFamily: 'Poppins, sans-serif' }}>About</a>
-          <a href="#skills" className="transition-colors duration-300 text-sm lg:text-base xl:text-lg font-medium hover:text-white" style={{ color: '#D1DAE0', fontFamily: 'Poppins, sans-serif' }}>Skills</a>
-          <a href="#projects" className="transition-colors duration-300 text-sm lg:text-base xl:text-lg font-medium hover:text-white" style={{ color: '#D1DAE0', fontFamily: 'Poppins, sans-serif' }}>Projects</a>
-          <a href="#experience" className="transition-colors duration-300 text-sm lg:text-base xl:text-lg font-medium hover:text-white" style={{ color: '#D1DAE0', fontFamily: 'Poppins, sans-serif' }}>Experience</a>
+          {NAV_LINKS.map(({ href, label }) => {
+            const id = href.replace('#', '');
+            const isActive = activeSection === id;
+            return (
+              <a
+                key={href}
+                href={href}
+                className="relative transition-colors duration-300 text-sm lg:text-base font-medium"
+                style={{ color: isActive ? '#fff' : '#D1DAE0', fontFamily: 'Poppins, sans-serif' }}
+              >
+                {label}
+                {isActive && (
+                  <span
+                    className="absolute -bottom-1 left-0 right-0 h-px rounded-full"
+                    style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent)' }}
+                  />
+                )}
+              </a>
+            );
+          })}
 
           {/* Social Links */}
           <div className="flex items-center gap-2 ml-2">
@@ -180,25 +219,28 @@ const Navbar = () => {
                   Navigate
                 </div>
 
-                {[
-                  { href: '#home', label: 'Home' },
-                  { href: '#about', label: 'About' },
-                  { href: '#skills', label: 'Skills' },
-                  { href: '#projects', label: 'Projects' },
-                  { href: '#experience', label: 'Experience' },
-                ].map(({ href, label }) => (
-                  <a
-                    key={href}
-                    href={href}
-                    className="flex items-center group py-4 px-6 rounded-2xl backdrop-blur-md bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all duration-300"
-                    style={{ fontFamily: 'Poppins, sans-serif' }}
-                    onClick={toggleMobileMenu}
-                  >
-                    <span className="text-base font-medium group-hover:text-white transition-colors" style={{ color: '#D1DAE0' }}>
-                      {label}
-                    </span>
-                  </a>
-                ))}
+                {NAV_LINKS.map(({ href, label }) => {
+                  const id = href.replace('#', '');
+                  const isActive = activeSection === id;
+                  return (
+                    <a
+                      key={href}
+                      href={href}
+                      className="flex items-center justify-between group py-4 px-6 rounded-2xl backdrop-blur-md border transition-all duration-300"
+                      style={{
+                        fontFamily: 'Poppins, sans-serif',
+                        background: isActive ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.03)',
+                        borderColor: isActive ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.08)',
+                      }}
+                      onClick={toggleMobileMenu}
+                    >
+                      <span className="text-base font-medium transition-colors" style={{ color: isActive ? '#fff' : '#D1DAE0' }}>
+                        {label}
+                      </span>
+                      {isActive && <span className="w-1.5 h-1.5 rounded-full bg-white/60" />}
+                    </a>
+                  );
+                })}
               </div>
 
               {/* Social Links Section */}

@@ -94,9 +94,9 @@ const About = () => {
                 <div
                     ref={paraRef}
                     style={{
-                        fontSize: 'clamp(0.85rem, 2.2vw, 1.75rem)',
+                        fontSize: 'clamp(0.9rem, 2.2vw, 1.5rem)',
                         fontWeight: 300,
-                        lineHeight: 2.8,
+                        lineHeight: 1.95,
                         color: 'rgba(255,255,255,0.55)',
                         letterSpacing: '-0.03em',
                     }}

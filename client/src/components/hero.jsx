@@ -139,11 +139,11 @@ const Hero = () => {
             </a>
           </div>
 
-          {/* Problem Solver badge */}
+          {/* Skills anchor badge */}
           <div className="relative inline-flex items-center justify-center">
-            <button className="relative inline-flex items-center justify-center px-4 sm:px-6 py-1.5 sm:py-3 rounded-full bg-white/10 backdrop-blur-md border border-white/30 text-white font-medium text-[11px] sm:text-sm transition-all duration-300 hover:border-white/50 hover:bg-white/5">
+            <a href="#skills" className="relative inline-flex items-center justify-center px-4 sm:px-6 py-1.5 sm:py-3 rounded-full bg-white/10 backdrop-blur-md border border-white/30 text-white font-medium text-[11px] sm:text-sm transition-all duration-300 hover:border-white/50 hover:bg-white/5">
               Problem Solver
-            </button>
+            </a>
           </div>
         </div>
 
@@ -196,6 +196,27 @@ const Hero = () => {
           </div>
         </div>
 
+      </div>
+
+      {/* Scroll indicator */}
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5" style={{ zIndex: 10 }}>
+        <span className="text-white/25 text-[10px] uppercase tracking-widest font-light">Scroll</span>
+        <svg
+          className="w-4 h-4 text-white/30"
+          style={{ animation: 'scrollBounce 1.6s ease-in-out infinite' }}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={1.5}
+          viewBox="0 0 24 24"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+        </svg>
+        <style>{`
+          @keyframes scrollBounce {
+            0%, 100% { transform: translateY(0); opacity: 0.3; }
+            50% { transform: translateY(5px); opacity: 0.7; }
+          }
+        `}</style>
       </div>
     </section>
   )

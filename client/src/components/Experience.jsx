@@ -9,16 +9,19 @@ const EXPERIENCE = [
     role: 'Technical Lead',
     company: 'The Cloud Club',
     period: 'Feb 2025 – Present',
+    description: 'Leading technical initiatives and mentoring developers across cloud infrastructure and web projects.',
   },
   {
     role: 'Web Developer',
     company: 'Nexathread',
     period: 'Jan 2025 – Present',
+    description: 'Building and maintaining full-stack features for the platform using the MERN stack and REST APIs.',
   },
   {
     role: 'Web Development Intern',
     company: 'Nexathread',
     period: 'Apr 2023 – Jan 2025',
+    description: 'Developed core frontend components, integrated backend APIs, and improved site performance across the product.',
   },
 ]
 
@@ -92,24 +95,32 @@ const Experience = () => {
             <div
               key={i}
               ref={(el) => (rowRefs.current[i] = el)}
-              className="flex flex-col sm:flex-row sm:items-center sm:justify-between
-                         gap-1 sm:gap-0
+              className="flex flex-col sm:flex-row sm:items-start sm:justify-between
+                         gap-2 sm:gap-8
                          py-6 sm:py-8 lg:py-9
                          border-t border-white/[0.08]
                          last:border-b last:border-white/[0.08]
                          group"
             >
-              {/* Role */}
-              <span
-                className="text-white/80 font-light text-base sm:text-xl lg:text-2xl
-                           group-hover:text-white transition-colors duration-300"
-                style={{ letterSpacing: '-0.03em' }}
-              >
-                {item.role}
-              </span>
+              {/* Left: Role + description */}
+              <div className="flex flex-col gap-1.5">
+                <span
+                  className="text-white/80 font-light text-base sm:text-xl lg:text-2xl
+                             group-hover:text-white transition-colors duration-300"
+                  style={{ letterSpacing: '-0.03em' }}
+                >
+                  {item.role}
+                </span>
+                <p
+                  className="text-white/35 font-light text-xs sm:text-sm leading-relaxed max-w-md"
+                  style={{ letterSpacing: '-0.01em' }}
+                >
+                  {item.description}
+                </p>
+              </div>
 
-              {/* Company + Period — left-aligned on mobile, right-aligned on sm+ */}
-              <div className="sm:text-right shrink-0 sm:ml-8">
+              {/* Right: Company + Period */}
+              <div className="sm:text-right shrink-0">
                 <p
                   className="text-white/60 font-light text-sm sm:text-base"
                   style={{ letterSpacing: '-0.02em' }}
