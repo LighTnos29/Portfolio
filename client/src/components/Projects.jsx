@@ -57,9 +57,10 @@ const CardContent = ({ project, isMobile, onProjectClick }) => (
                 alt={project.title}
                 loading="lazy"
                 decoding="async"
-                className="absolute inset-0 w-full h-full object-cover"
+                className="absolute inset-0 w-full h-full object-contain object-center"
+                style={{ background: 'rgb(6,8,13)' }}
               />
-              <div className="absolute inset-0 bg-black/20 pointer-events-none" />
+              <div className="absolute inset-0 bg-black/10 pointer-events-none" />
               <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-[rgb(6,8,13)] to-transparent pointer-events-none" />
             </>
           ) : (
@@ -151,9 +152,10 @@ const CardContent = ({ project, isMobile, onProjectClick }) => (
                 alt={project.title}
                 loading="lazy"
                 decoding="async"
-                className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-[1.03]"
+                className="absolute inset-0 w-full h-full object-contain object-center transition-transform duration-700 group-hover:scale-[1.03]"
+                style={{ background: 'rgb(6,8,13)' }}
               />
-              <div className="absolute inset-0 bg-black/15 pointer-events-none" />
+              <div className="absolute inset-0 bg-black/10 pointer-events-none" />
               <div className="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-black/30 to-transparent pointer-events-none" />
             </>
           ) : (
