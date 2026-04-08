@@ -2,6 +2,8 @@ const express = require('express')
 const app = express()
 const cookieParser = require('cookie-parser')
 const cors = require('cors')
+const helmet = require('helmet')
+const rateLimit = require('express-rate-limit')
 const mongoose = require('mongoose')
 require('dotenv').config()
 const mongooseConnection = require('./config/mongooseConnection')
@@ -41,7 +43,38 @@ const corsOptions = {
     maxAge: 86400
 }
 
+// Security headers
+app.use(helmet({
+    crossOriginResourcePolicy: { policy: 'cross-origin' }, // allow images to load cross-origin
+    contentSecurityPolicy: false, // managed by frontend (Vercel)
+}))
+
 app.use(cors(corsOptions))
+
+// Rate limiters
+const loginLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 10,
+    message: { success: false, message: 'Too many login attempts. Please try again later.' },
+    standardHeaders: true,
+    legacyHeaders: false,
+})
+
+const trackingLimiter = rateLimit({
+    windowMs: 60 * 1000, // 1 minute
+    max: 30,
+    message: { success: false, message: 'Too many requests.' },
+    standardHeaders: true,
+    legacyHeaders: false,
+})
+
+const apiLimiter = rateLimit({
+    windowMs: 60 * 1000,
+    max: 100,
+    message: { success: false, message: 'Too many requests. Please slow down.' },
+    standardHeaders: true,
+    legacyHeaders: false,
+})
 
 app.use((req, res, next) => {
     const originalJson = res.json.bind(res)
@@ -91,7 +124,10 @@ app.get('/health', (req, res) => {
     })
 })
 
-app.use("/project", projectRouter)
+app.use("/project", apiLimiter, projectRouter)
+app.use("/admin/login", loginLimiter)
+app.use("/admin/track-visit", trackingLimiter)
+app.use("/admin/track-project-view", trackingLimiter)
 app.use("/admin", adminRouter)
 
 app.use((err, req, res, next) => {
@@ -108,13 +144,12 @@ app.use((req, res) => {
     addCorsHeaders(req, res)
     res.status(404).json({
         success: false,
-        message: 'Route not found',
-        path: req.path
+        message: 'Not found'
     });
 });
 
 const PORT = process.env.PORT || 3000
 
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`)
+    if (process.env.NODE_ENV !== 'production') console.log(`Server running on port ${PORT}`)
 })

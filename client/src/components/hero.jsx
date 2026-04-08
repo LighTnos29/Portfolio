@@ -94,7 +94,7 @@ const Hero = () => {
   // Reusable tech logo tile
   const LogoTile = ({ src, alt, imgClass = 'w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10' }) => (
     <div className="w-10 h-10 sm:w-13 sm:h-13 md:w-16 md:h-16 rounded-xl sm:rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center shrink-0">
-      <img src={src} alt={alt} className={`${imgClass} object-contain`} />
+      <img src={src} alt={alt} width="40" height="40" loading="lazy" decoding="async" className={`${imgClass} object-contain`} />
     </div>
   )
 

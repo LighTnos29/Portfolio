@@ -34,21 +34,18 @@ module.exports.getAllProjects = async (req, res) => {
             projects
         })
     } catch (error) {
-        console.error('Error fetching projects:', error);
-        
-        // Handle MongoDB errors
+        if (process.env.NODE_ENV !== 'production') console.error('Error fetching projects:', error.message);
+
         if (error.name === 'MongoServerError' || error.name === 'MongooseError' || error.name === 'MongoNetworkError') {
             return res.status(503).json({
                 success: false,
-                message: "Database connection error. Please try again.",
-                error: "MongoDB connection issue"
+                message: "Database connection error. Please try again."
             })
         }
-        
+
         res.status(500).json({
             success: false,
-            message: "Error fetching projects",
-            error: process.env.NODE_ENV === 'production' ? 'Internal server error' : error.message
+            message: "Error fetching projects"
         })
     }
 }
@@ -70,8 +67,7 @@ module.exports.getProject = async (req, res) => {
     } catch (error) {
         res.status(500).json({
             success: false,
-            message: "Error fetching project",
-            error: error.message
+            message: "Error fetching project"
         })
     }
 }
@@ -133,8 +129,7 @@ module.exports.updateProject = async (req, res) => {
     } catch (error) {
         res.status(400).json({
             success: false,
-            message: "Error updating project",
-            error: error.message
+            message: "Error updating project"
         })
     }
 }
@@ -157,8 +152,7 @@ module.exports.deleteProject = async (req, res) => {
     } catch (error) {
         res.status(500).json({
             success: false,
-            message: "Error deleting project",
-            error: error.message
+            message: "Error deleting project"
         })
     }
 }
@@ -186,42 +180,20 @@ module.exports.githubPrivateRepoFetch = async (req, res) => {
             repos: response.data
         });
     } catch (error) {
-        console.error('GitHub API Error:', error.response?.data || error.message);
+        if (process.env.NODE_ENV !== 'production') console.error('GitHub API Error:', error.response?.status || error.message);
 
-        // Handle specific GitHub API errors
         if (error.response) {
             const status = error.response.status;
-            const githubError = error.response.data;
-
             if (status === 401) {
-                return res.status(401).json({
-                    success: false,
-                    message: "Invalid GitHub access token. Please check your GITHUB_ACCESS_TOKEN in environment variables.",
-                    error: githubError.message || "Unauthorized"
-                });
+                return res.status(401).json({ success: false, message: "Invalid GitHub access token." });
             }
-
             if (status === 403) {
-                return res.status(403).json({
-                    success: false,
-                    message: "GitHub API rate limit exceeded or token lacks required permissions.",
-                    error: githubError.message || "Forbidden"
-                });
+                return res.status(403).json({ success: false, message: "GitHub API rate limit exceeded or insufficient permissions." });
             }
-
-            return res.status(status).json({
-                success: false,
-                message: "Error fetching repositories from GitHub",
-                error: githubError.message || error.message
-            });
+            return res.status(status).json({ success: false, message: "Error fetching repositories from GitHub" });
         }
 
-        // Network or other errors
-        res.status(500).json({
-            success: false,
-            message: "Error connecting to GitHub API",
-            error: error.message
-        });
+        res.status(500).json({ success: false, message: "Error connecting to GitHub API" });
     }
 }
 
@@ -357,11 +329,9 @@ Return only valid JSON without any additional text or formatting.`;
 
         // Validate required fields before creating project
         if (!projectData.title || !projectData.domain) {
-            console.error('Missing required fields:', { title: projectData.title, domain: projectData.domain });
             return res.status(400).json({
                 success: false,
-                message: "Failed to generate project data. Missing required fields.",
-                error: "Title or domain is missing"
+                message: "Failed to generate project data. Missing required fields."
             });
         }
 
@@ -387,15 +357,12 @@ Return only valid JSON without any additional text or formatting.`;
         });
 
     } catch (error) {
-        console.error('Error creating project from repo:', error);
-        console.error('Error stack:', error.stack);
+        if (process.env.NODE_ENV !== 'production') console.error('Error creating project from repo:', error.message);
 
-        // Handle MongoDB errors
         if (error.name === 'MongoServerError' || error.name === 'MongooseError' || error.name === 'MongoNetworkError') {
             return res.status(503).json({
                 success: false,
-                message: "Database connection error. Please try again.",
-                error: "MongoDB connection issue"
+                message: "Database connection error. Please try again."
             })
         }
 
@@ -431,8 +398,7 @@ Return only valid JSON without any additional text or formatting.`;
 
             return res.status(status).json({
                 success: false,
-                message: "Error fetching repository data from GitHub",
-                error: githubError.message || error.message
+                message: "Error fetching repository data from GitHub"
             });
         }
 
@@ -440,16 +406,14 @@ Return only valid JSON without any additional text or formatting.`;
         if (error.name === 'ValidationError') {
             return res.status(400).json({
                 success: false,
-                message: "Invalid project data",
-                error: error.message
+                message: "Invalid project data"
             });
         }
 
         // Generic error
         res.status(500).json({
             success: false,
-            message: "Error creating project from repository",
-            error: error.message || "Unknown error occurred"
+            message: "Error creating project from repository"
         });
     }
 }
@@ -475,8 +439,7 @@ module.exports.uploadImage = async (req, res) => {
     } catch (error) {
         res.status(500).json({
             success: false,
-            message: "Error uploading image",
-            error: error.message
+            message: "Error uploading image"
         })
     }
 }

@@ -21,43 +21,32 @@ if (MONGODB_URI) {
     connectionString = `mongodb://localhost:27017/${DB_NAME}`
 }
 
-const safeUri = connectionString.replace(/\/\/[^:]+:[^@]+@/, '//***:***@')
-console.log('🔌 Connecting to MongoDB...')
-console.log('📍 Connection string format:', safeUri)
-
 const options = {
-    serverSelectionTimeoutMS: 30000,
-    socketTimeoutMS: 45000,
+    serverSelectionTimeoutMS: 5000,
+    connectTimeoutMS: 8000,
+    socketTimeoutMS: 20000,
     maxPoolSize: 10,
     retryWrites: true
 }
 
+const isProd = process.env.NODE_ENV === 'production'
+
 mongoose.connect(connectionString, options)
     .then(() => {
-        console.log('✅ MongoDB connected successfully')
-        console.log('📊 Database:', mongoose.connection.db?.databaseName || DB_NAME)
+        if (!isProd) console.log('✅ MongoDB connected:', mongoose.connection.db?.databaseName || DB_NAME)
     })
     .catch((err) => {
-        console.error('❌ MongoDB connection failed')
-        console.error('📝 Error:', err.message)
-        console.error('🔖 Code:', err.code || err.name)
+        console.error('❌ MongoDB connection failed:', err.code || err.name)
     })
 
-mongoose.connection.on('connected', () => {
-    console.log('✅ MongoDB connection established')
-})
-
 mongoose.connection.on('error', (err) => {
-    console.error('❌ MongoDB error:', err.message)
+    console.error('❌ MongoDB error:', err.code || err.name)
 })
 
-mongoose.connection.on('disconnected', () => {
-    console.warn('⚠️ MongoDB disconnected')
-})
-
-mongoose.connection.on('reconnected', () => {
-    console.log('✅ MongoDB reconnected')
-})
+if (!isProd) {
+    mongoose.connection.on('disconnected', () => console.warn('⚠️ MongoDB disconnected'))
+    mongoose.connection.on('reconnected', () => console.log('✅ MongoDB reconnected'))
+}
 
 process.on('SIGINT', async () => {
     await mongoose.connection.close()

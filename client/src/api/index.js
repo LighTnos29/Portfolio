@@ -1,7 +1,9 @@
 const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api'
 
 
-export const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000'
+// In dev the Vite proxy forwards /uploads → localhost:3000, so relative URL works.
+// In prod set VITE_BACKEND_URL to your backend origin (e.g. https://your-api.onrender.com)
+export const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || ''
 
 async function request(endpoint, options = {}) {
     const cleanBase = API_BASE.endsWith('/') ? API_BASE.slice(0, -1) : API_BASE

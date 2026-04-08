@@ -156,12 +156,17 @@ module.exports.getAnalytics = async (req, res) => {
 module.exports.trackPageVisit = async (req, res) => {
     try {
         const { page } = req.body;
+
+        const safePage = typeof page === 'string'
+            ? page.slice(0, 200).replace(/[<>]/g, '')
+            : '/';
+
         const clientIP = req.ip || req.connection?.remoteAddress || '127.0.0.1';
         const ipHash = hashIP(clientIP);
-        const userAgent = req.get('User-Agent') || 'Unknown';
+        const userAgent = (req.get('User-Agent') || 'Unknown').slice(0, 300);
 
         await Visit.create({
-            page: page || '/',
+            page: safePage,
             ipHash,
             userAgent
         });
@@ -183,12 +188,21 @@ module.exports.trackPageVisit = async (req, res) => {
 module.exports.trackProjectView = async (req, res) => {
     try {
         const { projectId, projectTitle } = req.body;
+
+        if (!projectId || typeof projectId !== 'string' || projectId.length > 100) {
+            return res.status(400).json({ success: false, message: 'Invalid project ID' });
+        }
+
+        const safeTitle = typeof projectTitle === 'string'
+            ? projectTitle.slice(0, 200).replace(/[<>]/g, '')
+            : '';
+
         const clientIP = req.ip || req.connection?.remoteAddress || '127.0.0.1';
         const ipHash = hashIP(clientIP);
 
         await ProjectView.create({
             projectId,
-            projectTitle,
+            projectTitle: safeTitle,
             ipHash
         });
 
