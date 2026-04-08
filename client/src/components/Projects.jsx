@@ -230,9 +230,9 @@ const Projects = () => {
     return () => window.removeEventListener('resize', onResize)
   }, [])
 
-  // Setup scroll animations once projects are loaded
+  // Setup scroll animations once projects are loaded (desktop only)
   useEffect(() => {
-    if (loading || projects.length === 0) return
+    if (loading || projects.length === 0 || isMobile) return
 
     const ctx = gsap.context(() => {
       gsap.fromTo(
@@ -264,7 +264,7 @@ const Projects = () => {
         const seg = i / (total - 1)
         const segDur = 1 / (total - 1)
         tl.to(cards[i + 1], { y: 0, ease: 'none', duration: segDur }, seg)
-          .to(cards[i], { scale: 0.95, opacity: 0.6, ease: 'none', duration: segDur }, seg)
+          .to(cards[i], { scale: 0.96, ease: 'none', duration: segDur }, seg)
       })
 
       ScrollTrigger.create({
@@ -274,13 +274,13 @@ const Projects = () => {
         pin: true,
         pinSpacing: true,
         anticipatePin: 1,
-        scrub: 0.6,
+        scrub: 1,
         animation: tl,
       })
     }, sectionRef)
 
     return () => ctx.revert()
-  }, [loading, projects])
+  }, [loading, projects, isMobile])
 
   // Track project view when clicking external links
   const handleProjectClick = (project) => {
@@ -317,6 +317,32 @@ const Projects = () => {
     )
   }
 
+  // ── Mobile: simple native-scroll list (no GSAP, no pinning) ──────────────────
+  if (isMobile) {
+    return (
+      <div id="projects" className="relative w-full px-3 pt-20 pb-10" style={{ zIndex: 10 }}>
+        <h2
+          ref={headingRef}
+          className="text-2xl font-medium text-white mb-6 px-1"
+          style={{ letterSpacing: '-0.03em' }}
+        >
+          Projects that <span className="text-white/40">ship.</span>
+        </h2>
+        <div className="flex flex-col gap-4">
+          {projects.map((project, i) => (
+            <div
+              key={project._id}
+              style={{ height: '340px', borderRadius: '1rem', overflow: 'hidden' }}
+            >
+              <CardContent project={project} isMobile={true} onProjectClick={handleProjectClick} />
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  // ── Desktop: pinned scroll stack ──────────────────────────────────────────────
   return (
     <>
       {/* Heading */}
@@ -334,7 +360,7 @@ const Projects = () => {
       <section
         id="projects"
         ref={sectionRef}
-        style={{ position: 'relative', width: '100%', height: isMobile ? '85vh' : '100vh', overflow: 'hidden', zIndex: 10 }}
+        style={{ position: 'relative', width: '100%', height: '100vh', overflow: 'hidden', zIndex: 10 }}
       >
         {projects.map((project, i) => (
           <div
@@ -342,18 +368,19 @@ const Projects = () => {
             ref={(el) => (cardRefs.current[i] = el)}
             style={{
               position: 'absolute',
-              top: isMobile ? `${NAV_H + 4}px` : `${NAV_H + 8}px`,
-              bottom: isMobile ? '8px' : '24px',
-              left: isMobile ? '8px' : 'clamp(16px, 3vw, 48px)',
-              right: isMobile ? '8px' : 'clamp(16px, 3vw, 48px)',
+              top: `${NAV_H + 8}px`,
+              bottom: '24px',
+              left: 'clamp(16px, 3vw, 48px)',
+              right: 'clamp(16px, 3vw, 48px)',
               maxWidth: '82rem',
               marginLeft: 'auto',
               marginRight: 'auto',
               zIndex: i + 1,
-              willChange: 'transform, opacity',
+              willChange: 'transform',
+              transform: 'translateZ(0)',
             }}
           >
-            <CardContent project={project} isMobile={isMobile} onProjectClick={handleProjectClick} />
+            <CardContent project={project} isMobile={false} onProjectClick={handleProjectClick} />
           </div>
         ))}
       </section>
