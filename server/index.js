@@ -109,8 +109,6 @@ app.use(express.json({ limit: '10kb' }))
 app.use(express.urlencoded({ extended: true, limit: '10kb' }))
 app.use(cookieParser())
 
-app.use('/uploads', express.static('public/uploads'))
-
 app.get('/', (req, res) => {
     res.send("Hello")
 })

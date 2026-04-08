@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 const { getAllProjects, getProject, createProject, updateProject, deleteProject, githubPrivateRepoFetch, createProjectFromRepo, uploadImage } = require('../controllers/projectController')
 const isLoggedIn = require('../middlewares/isLoggedIn')
-const upload = require('../utils/upload')
+const { upload } = require('../utils/upload')
 
 // Protected routes (must be BEFORE /:id to avoid route conflicts)
 router.get('/github/repos', isLoggedIn, githubPrivateRepoFetch)

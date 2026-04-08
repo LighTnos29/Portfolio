@@ -36,9 +36,6 @@ export default defineConfig({
           'vendor-gsap': ['gsap'],
           'vendor-lenis': ['lenis'],
 
-          // 3D — only used if referenced; split so it doesn't block anything
-          'vendor-three': ['three', '@react-three/fiber', '@react-three/drei'],
-
           // Charts — only used in AdminDashboard (lazy-loaded anyway)
           'vendor-charts': ['recharts'],
 

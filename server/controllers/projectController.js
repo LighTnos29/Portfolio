@@ -3,6 +3,7 @@ const mongoose = require('mongoose')
 const axios = require('axios')
 const Groq = require('groq-sdk')
 const path = require('path')
+const { uploadToCloudinary } = require('../utils/upload')
 
 // In-memory cache for projects (rarely changes, avoids DB hit on every visitor)
 let projectsCache = null
@@ -428,8 +429,7 @@ module.exports.uploadImage = async (req, res) => {
             })
         }
 
-        // Return the URL path (relative to /uploads)
-        const imageUrl = `/uploads/projects/${req.file.filename}`
+        const imageUrl = await uploadToCloudinary(req.file.buffer, req.file.originalname)
 
         res.status(200).json({
             success: true,
@@ -437,6 +437,7 @@ module.exports.uploadImage = async (req, res) => {
             imageUrl
         })
     } catch (error) {
+        if (process.env.NODE_ENV !== 'production') console.error('Image upload error:', error.message)
         res.status(500).json({
             success: false,
             message: "Error uploading image"

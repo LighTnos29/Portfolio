@@ -1,29 +1,21 @@
 const multer = require('multer')
+const cloudinary = require('cloudinary').v2
 const path = require('path')
-const fs = require('fs')
 
-const uploadsDir = path.join(__dirname, '../public/uploads/projects')
-if (!fs.existsSync(uploadsDir)) {
-    fs.mkdirSync(uploadsDir, { recursive: true })
-}
-
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, uploadsDir)
-    },
-    filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
-        const ext = path.extname(file.originalname)
-        const name = path.basename(file.originalname, ext).replace(/[^a-zA-Z0-9]/g, '-')
-        cb(null, `${uniqueSuffix}-${name}${ext}`)
-    }
+// Configure Cloudinary from env vars
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
 })
+
+// Use memory storage — no disk writes, stream straight to Cloudinary
+const storage = multer.memoryStorage()
 
 const fileFilter = (req, file, cb) => {
     const allowedTypes = /jpeg|jpg|png|gif|webp/
     const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase())
     const mimetype = allowedTypes.test(file.mimetype)
-
     if (extname && mimetype) {
         cb(null, true)
     } else {
@@ -32,11 +24,31 @@ const fileFilter = (req, file, cb) => {
 }
 
 const upload = multer({
-    storage: storage,
-    limits: {
-        fileSize: 5 * 1024 * 1024
-    },
-    fileFilter: fileFilter
+    storage,
+    limits: { fileSize: 5 * 1024 * 1024 },
+    fileFilter,
 })
 
-module.exports = upload
+// Upload buffer to Cloudinary and return the secure URL
+const uploadToCloudinary = (buffer, originalName) => {
+    return new Promise((resolve, reject) => {
+        const name = path.basename(originalName, path.extname(originalName)).replace(/[^a-zA-Z0-9]/g, '-')
+        const stream = cloudinary.uploader.upload_stream(
+            {
+                folder: 'portfolio/projects',
+                public_id: `${Date.now()}-${name}`,
+                transformation: [
+                    { quality: 'auto', fetch_format: 'auto' }, // auto WebP/AVIF + compression
+                    { width: 1200, crop: 'limit' },             // cap max width
+                ],
+            },
+            (error, result) => {
+                if (error) return reject(error)
+                resolve(result.secure_url)
+            }
+        )
+        stream.end(buffer)
+    })
+}
+
+module.exports = { upload, uploadToCloudinary }
