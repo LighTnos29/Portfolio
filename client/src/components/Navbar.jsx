@@ -124,7 +124,7 @@ const Navbar = () => {
           {/* Social Links */}
           <div className="flex items-center gap-2 ml-2">
             <a
-              href="https://github.com/LighTnos29"
+              href="https://github.com/LighTnos"
               target="_blank"
               rel="noopener noreferrer"
               className="w-9 h-9 flex items-center justify-center rounded-full backdrop-blur-md bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300"
